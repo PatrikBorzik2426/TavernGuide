@@ -8,8 +8,14 @@ export default {
         aqua: '#44FFD1',       // Custom aqua color
         purple: '#5F4BB6',     // Custom purple color
       },
+      fontFamily: {
+        manrope: ['Manrope', 'sans-serif'], // Add Manrope as the primary sans font
+      },
     },
   },
-  plugins: [],
+  plugins: [
+    require('tailwindcss-animated'),
+    require('@tailwindcss/typography')
+  ]
 }
 

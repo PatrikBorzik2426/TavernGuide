@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:13
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: dndjecool
+      POSTGRES_DB: tavern_guide
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - tavern_network
+
+volumes:
+  pg_data:
+
+networks:
+  tavern_network:
+    driver: bridge
