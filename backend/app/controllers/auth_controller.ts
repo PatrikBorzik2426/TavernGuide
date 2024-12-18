@@ -50,7 +50,13 @@ export default class AuthController {
     }
 
     async logout(ctx: HttpContext) {
+        console.log("Logout attempt")
+        
         const user = ctx.auth.user
+
+        if (user){
+            console.log("Logout attempt with username: " + user.login)
+        }
 
         if(!user){
             return ctx.response.badRequest({message: "User not found", status: 404})
