@@ -5,9 +5,8 @@
         </div>
 
         <h1 class=" text-4xl text-white font-bold uppercase">Campaigns</h1>
-        <div class="mt-8">
+        <div class="flex flex-col gap-8 mt-8">
             <form @submit.prevent="verifyCreationForm" class="flex items-center gap-8 text-white max-w-[800px]">
-            
                 <div class=" w-full flex flex-col mt-auto">
                     <label for="name" class=" uppercase font-bold text-lg">Name</label>
                     <input v-model="nameInput" type="text" name="username" class=" mt-2 px-2 py-1 h-11 bg-transparent border-[3px] border-purple rounded-md"
@@ -29,6 +28,16 @@
                 :class="{'my-auto': nameError !== '' || descriptionError !== ''}"
                 >
                 Create New Campaign
+                </button>
+            </form>
+            <form @submit.prevent="joinCampaign()" class="flex items-center gap-8 text-white w-3/12">
+                <div class=" w-full flex flex-col mt-auto">
+                    <label for="campaign_name" class=" uppercase font-bold text-lg">Campaign Name</label>
+                    <input v-model="campaignNameToJoin" type="text" name="campaign_name" class=" mt-2 px-2 py-1 h-11 bg-transparent border-[3px] border-purple rounded-md">
+                </div>
+                <button type="submit" 
+                class="px-4 py-2 min-w-fit mt-auto max-h-fit border-[3px] border-purple bg-purple text-white font-medium uppercase rounded-md hover:bg-white hover:text-purple transition-colors hover:border-white"                >
+                JOIN
                 </button>
             </form>
         </div>
@@ -90,6 +99,7 @@ const generalError = ref<string>('');
 const campaigns = ref<Campaign[]>([]);
 const campaignNameInputs = ref<string[]>([]);
 const campaignDescriptionInputs = ref<string[]>([]);
+const campaignNameToJoin = ref<string>('');
 
 async function verifyCreationForm(){
     if (nameInput.value === ''){
@@ -212,6 +222,32 @@ async function updateCampaign(arrayIndex: number, campaign_id: number){
     }else{
         console.log('Campaign not updated');
         generalError.value = 'Campaign not updated';
+
+        setTimeout(() => {
+            generalError.value = '';
+        }, 5000)
+    }
+    
+}
+
+async function joinCampaign() {
+    const result = await callAxios({campaign_name: campaignNameToJoin.value}, 'campaigns/join')
+
+    if (result.status == 200){
+        console.log('Campaign joined');
+
+        console.log(result);
+
+        campaigns.value.push(result.campaign);
+
+        campaignNameInputs.value.push(result.campaign.name);
+        campaignDescriptionInputs.value.push(result.campaign.description);
+
+        return;
+    }else{
+        console.log('Campaign not joined');
+        
+        generalError.value = 'Campaign not joined ';
 
         setTimeout(() => {
             generalError.value = '';

@@ -25,7 +25,7 @@ export default class Map extends BaseModel {
     pivotTable: 'campaign_map',
     pivotForeignKey: 'map_id',
     pivotRelatedForeignKey: 'campaign_id',
-    pivotColumns: ['map_id','campaign_id','grid_x','grid_y'],
+    pivotColumns: ['map_id','campaign_id','grid_x','grid_y', 'active'],
     pivotTimestamps: true
   })
   declare campaigns: ManyToMany<typeof Campaign>
@@ -34,7 +34,7 @@ export default class Map extends BaseModel {
     pivotTable: 'character_map',
     pivotForeignKey: 'map_id',
     pivotRelatedForeignKey: 'character_id',
-    pivotColumns: ['map_id','character_id','x','y'],
+    pivotColumns: ['character_id','map_id','user_id','x','y','health','current_health', 'speed', 'armour', 'initiative', 'status', 'fov','hidden'],
     pivotTimestamps: true
   })
   declare characters: ManyToMany<typeof Character>

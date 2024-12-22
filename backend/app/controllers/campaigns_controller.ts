@@ -1,6 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import transmit from '../../config/transmit.js'
+import transmit from "@adonisjs/transmit/services/main"
 import Campaign from '../models/campaign.js'
+import User from '../models/user.js'
 
 export default class CampaignsController {
     async create(ctx: HttpContext) {
@@ -60,16 +61,25 @@ export default class CampaignsController {
             .query()
             .orderBy('created_at', 'asc')
 
+            const campaigns : Object[] = []
+
             // Creating my own format for response with added atributes in the $extras object
 
-            const campaigns = temp_campaigns.map((campaign) => {
-                return {
-                    id: campaign.id,
-                    name: campaign.name,
-                    description: campaign.description,
-                    dm: campaign.$extras.pivot_is_dm ? user : null,
-                }
-            })
+            for(let i = 0; i < temp_campaigns.length; i++){
+                
+                const dm : User = await temp_campaigns[i]
+                    .related('users')
+                    .query()
+                    .wherePivot('is_dm', true)
+                    .firstOrFail()
+
+                campaigns.push({
+                    id: temp_campaigns[i].id,
+                    name: temp_campaigns[i].name,
+                    description: temp_campaigns[i].description,
+                    dm: dm,
+                })
+            }
         
             return ctx.response.ok({campaigns, status: 200})
             
@@ -168,6 +178,107 @@ export default class CampaignsController {
             return ctx.response.badRequest(e)
         }
 
+    }
+
+    async getDmOfCampaign(ctx: HttpContext) {
+
+        const {campaign_id} = ctx.request.all()
+
+        try{
+            const campaign = await Campaign.findOrFail(campaign_id)
+
+            const dm : User = await campaign
+            .related('users')
+            .query()
+            .wherePivot('is_dm', true)
+            .firstOrFail()
+
+            return ctx.response.ok({dm_id: dm.id, status: 200})
+        }catch(e){
+            console.log("Error getting DM of campaign: " + e)
+            return ctx.response.badRequest(e)
+        }
+    }
+
+    async assignedUsers(ctx: HttpContext) {
+        const user = ctx.auth.user
+
+        if(!user){
+            return ctx.response.badRequest({message: "User not found", status: 404})
+        }
+
+        const {campaign_id} = ctx.request.all()
+
+        try{
+            const campaign = await user
+            .related('campaigns')
+            .query()
+            .where('campaign_id', campaign_id)
+            .firstOrFail()
+
+            const users = await campaign
+            .related('users')
+            .query()
+            .orderBy('created_at', 'asc')
+
+            return ctx.response.ok({users, status: 200})
+        }catch(e){
+            console.log("Error getting assigned users: " + e)
+            return ctx.response.badRequest(e)
+        }
+    }
+
+    async joinCampaign(ctx: HttpContext) {
+        const user = ctx.auth.user
+
+        if(!user){
+            return ctx.response.badRequest({message: "User not found", status: 404})
+        }
+
+        const {campaign_name} = ctx.request.all()
+
+        try{
+            const campaignOrigin = await Campaign.findByOrFail('name', campaign_name)
+
+            console.log("Joining campaign: " + campaign_name, "User: " + user.login)
+
+            // Check if user is already in campaign
+
+            const isAlreadyInCampaign = await user.related('campaigns')
+            .query()
+            .where('campaign_id', campaignOrigin.id)
+            .first()
+
+            if(isAlreadyInCampaign){
+                return ctx.response.badRequest({message: "User already in campaign", status: 400})
+            }
+
+            await campaignOrigin.related('users').attach({
+                [user.id]: {
+                    is_dm: false
+                }
+            })
+
+            const dm : User = await campaignOrigin
+            .related('users')
+            .query()
+            .wherePivot('is_dm', true)
+            .firstOrFail()
+
+            console.log("DM of campaign: " + dm.login)
+
+            const campaign = {
+                id: campaignOrigin.id,
+                name: campaignOrigin.name,
+                description: campaignOrigin.description,
+                dm: dm
+            }
+
+            return ctx.response.ok({campaign: campaign, message: "User joined campaign", status: 200})
+        }catch(e){
+            console.log("Error joining campaign: " + e)
+            return ctx.response.badRequest(e)
+        }
     }
 
 }

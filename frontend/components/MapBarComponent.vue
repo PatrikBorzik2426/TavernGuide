@@ -1,5 +1,5 @@
 <template>
-    <div  id="mapBar" class="flex justify-start items-center w-screen h-[15vh] max-h-[320px] bg-purple z-10 px-[5%]">
+    <div  id="mapBar" :class="{'bg-purple h-[15vh]' : showMaps, 'bg-transparent h-[1vh]': !showMaps}" class="flex justify-start items-center w-screen  max-h-[320px] bg-purple z-[100] px-[5%]">
         <form @submit.prevent="createMap" v-if="showMaps" class="flex justify-center items-center min-w-fit gap-x-8">
             <div class=" flex flex-col justify-center items-end text-white">
                 <div class="flex items-center gap-2">
@@ -15,7 +15,7 @@
             <button type="submit" class="p-2 text-center text-md font-medium bg-white text-purple rounded-md hover:animate-wiggle animate-infinite">Add Map</button>
         </form>
 
-        <button id="mapClosingBtn" @click="hideMaps()" type="button" class=" w-[2vw] h-[3vh] fixed top-[11.5%] left-[49%] rounded-full border-2 border-white bg-purple z-50">
+        <button id="mapClosingBtn" @click="hideMaps()" type="button" class=" w-[2vw] h-[3vh] fixed top-[11.5%] left-[49%] rounded-full border-2 border-white bg-purple z-100">
             <img :src="imgHide" class="mx-auto">
         </button>
 
@@ -41,14 +41,16 @@
 
     </div>
 
-    <div v-if="showMaps" id="gridModifier" class="flex gap-2 w-fit h-fit p-2 fixed top-[15%] left-[6%] z-50">
-        <label for="grid_x" class="text-white">Grid X:</label>
-        <input @blur="updateGridX()" type="number" max="99" id="grid_x" name="grid_x" v-model="grid_x" class=" w-12 h-6 p-1 bg-transparent border-[3px] text-center  border-white rounded-lg text-white">
-
-        <label for="grid_y" class="text-white">Grid Y:</label>
-        <input @blur="updateGridY()" type="number" max="99" id="grid_y" name="grid_y" v-model="grid_y" class="w-12 h-6 p-1 bg-transparent border-[3px] text-center  border-white rounded-lg text-white">
+    <div>
+        <div v-if="showMaps" id="gridModifier" class="flex gap-2 w-fit h-fit p-2 fixed top-[15%] left-[18%] z-50">
+            <label for="grid_x" class="text-white">Grid X:</label>
+            <input @blur="updateGridX()" type="number" max="99" id="grid_x" name="grid_x" v-model="grid_x" class=" w-12 h-6 p-1 bg-transparent border-[3px] text-center  border-white rounded-lg text-white">
+            
+            <label for="grid_y" class="text-white">Grid Y:</label>
+            <input @blur="updateGridY()" type="number" max="99" id="grid_y" name="grid_y" v-model="grid_y" class="w-12 h-6 p-1 bg-transparent border-[3px] text-center  border-white rounded-lg text-white">
+        </div>
     </div>
-
+        
 </template>
 
 <script setup lang="ts" >
@@ -59,7 +61,7 @@ import arrowDown from '@/assets/imgs/arrow_down.svg';
 import type { Map } from '@/models/Map';
 
 // Emits & Props
-const emits = defineEmits(['grid_x', 'grid_y']);
+const emits = defineEmits(['grid_x', 'grid_y', 'img_url', 'map_id']);
 
 const props = defineProps({
     campaign_id: Number
@@ -100,7 +102,7 @@ async function updateGridY(){
     }
 }
 
-function selectCurrentMap(map: Map){
+async function selectCurrentMap(map: Map){
     currentMap.value = map;
 
     console.log('Current Map: ', currentMap.value);
@@ -110,6 +112,15 @@ function selectCurrentMap(map: Map){
 
     emits('grid_x', grid_x.value);
     emits('grid_y', grid_y.value);
+    emits('img_url', map.url);
+    emits('map_id', map.id);
+
+    const body = {
+        campaign_id: props.campaign_id,
+        map_id: map.id
+    }
+
+    await callAxios(body, 'maps/setActive');
 }
 
 async function getMaps(){

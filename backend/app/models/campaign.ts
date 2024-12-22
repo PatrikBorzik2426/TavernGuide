@@ -35,7 +35,7 @@ export default class Campaign extends BaseModel {
     pivotTable: 'campaign_map',
     pivotForeignKey: 'campaign_id',
     pivotRelatedForeignKey: 'map_id',
-    pivotColumns: ['campaign_id', 'map_id','grid_x','grid_y'],
+    pivotColumns: ['campaign_id', 'map_id','grid_x','grid_y', 'active'],
     pivotTimestamps: true
   })
   declare maps: ManyToMany<typeof Map>

@@ -31,8 +31,8 @@
         </div>
 
         <div class="flex justify-center items-center gap-4 mt-12">
-            <button type="submit" class="px-4 py-2 w-1/3 border-[3px] border-purple bg-purple text-white font-extrabold uppercase rounded-md hover:bg-white hover:text-purple transition-colors hover:border-white" >Register</button>
-            <button @click="emitChangeToLogin()" type="button" class="px-4 py-2 w-1/3 border-[3px] border-purple text-purple font-extrabold uppercase rounded-md hover:bg-white hover:text-purple transition-colors hover:border-white" >Login</button>
+            <button type="submit" class="px-4 py-2 w-fit border-[3px] border-purple bg-purple text-white font-extrabold uppercase rounded-md hover:bg-white hover:text-purple transition-colors hover:border-white" >Register</button>
+            <button @click="emitChangeToLogin()" type="button" class="px-4 py-2 w-fit border-[3px] border-purple text-purple font-extrabold uppercase rounded-md hover:bg-white hover:text-purple transition-colors hover:border-white" >Login</button>
         </div>
     </form>
 </template>

@@ -1,5 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import transmit from '../../config/transmit.js'
+import transmit from "@adonisjs/transmit/services/main"
 import Map from '../models/map.js'
 import User from '../models/user.js'
 import Campaign from '../models/campaign.js'
@@ -22,7 +22,8 @@ export default class MapsController {
             await newMap.related('campaigns').attach({
                 [campaign_id]: {
                     grid_x: grid_x,
-                    grid_y: grid_y
+                    grid_y: grid_y,
+                    active: false
                 }
             })
 
@@ -139,10 +140,117 @@ export default class MapsController {
                 grid_y: grid_y
             })
 
+            const bodyMap = {
+                id: map.id,
+                name: map.name,
+                url: map.image_url,
+                grid_x: grid_x,
+                grid_y: grid_y
+            }
+
+            transmit.broadcast(`campaign:${campaign_id}:map:active`,{
+                map: bodyMap
+            });
+
             return ctx.response.ok({message: "Map updated", status: 200})
         }catch(e){
             console.log("Error updating map: " + e)
             return ctx.response.badRequest(e)
         }
     }
+
+    async getActiveMap(ctx: HttpContext) {
+        const user = ctx.auth.user
+
+        if(!user){
+            return ctx.response.badRequest({message: "User not found", status: 404})
+        }
+
+        const {campaign_id} = ctx.request.all()
+
+        try{
+            const campaign = await Campaign.findOrFail(campaign_id)
+
+            const map = await campaign.related('maps').query().where('active', true).firstOrFail()
+
+            const bodyMap ={
+                id: map.id,
+                name: map.name,
+                url: map.image_url,
+                grid_x: map.$extras.pivot_grid_x,
+                grid_y: map.$extras.pivot_grid_y
+            }
+
+            return ctx.response.ok({map: bodyMap, status: 200})
+        }catch(e){
+            console.log("Error getting active map: " + e)
+            return ctx.response.badRequest(e)
+        }
+    }
+
+    async setActiveMap(ctx: HttpContext) {
+        const user = ctx.auth.user
+
+        if(!user){
+            return ctx.response.badRequest({message: "User not found", status: 404})
+        }
+
+        const {map_id, campaign_id} = ctx.request.all()
+
+        try{
+            const campaign = await Campaign.findOrFail(campaign_id)
+
+            await campaign.related('maps').query().update({active: false})
+
+            await campaign.related('maps').query().where('map_id', map_id).update({active: true})
+
+            const activeMap = await campaign.related('maps').query().where('active', true).firstOrFail()
+
+            const bodyMap = {
+                id: activeMap.id,
+                name: activeMap.name,
+                url: activeMap.image_url,
+                grid_x: activeMap.$extras.pivot_grid_x,
+                grid_y: activeMap.$extras.pivot_grid_y
+            }
+
+            transmit.broadcast(`campaign:${campaign_id}:map:active`,{
+                map: bodyMap
+            });
+
+            console.log("Broadcast to channel: campaign:" + campaign_id + ":map:active")
+
+            return ctx.response.ok({message: "Map set as active", status: 200})
+        }catch(e){
+            console.log("Error setting active map: " + e)
+            return ctx.response.badRequest(e)
+        }
+    }
+
+    async revealMap(ctx: HttpContext) {
+        const user = ctx.auth.user
+
+        if(!user){
+            return ctx.response.badRequest({message: "User not found", status: 404})
+        }
+
+        console.log(ctx.request.body())
+
+        const {map_id, campaign_id, cell_ids} = ctx.request.all()
+
+        console.log("Revealing map with cellIds: " + cell_ids)
+
+        try{
+            
+            transmit.broadcast(`campaign:${campaign_id}:map:${map_id}:reveal`,{
+                cellIds: cell_ids
+            })
+
+            return ctx.response.ok({message: "Map revealed", status: 200})
+        }catch(e){
+            console.log("Error revealing map: " + e)
+            return ctx.response.badRequest(e)
+        }
+    }
+
 }

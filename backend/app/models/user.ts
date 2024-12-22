@@ -44,10 +44,10 @@ export default class User extends compose(BaseModel, AuthFinder) {
   declare campaigns: ManyToMany<typeof Campaign> 
 
   @manyToMany(() => Character,{
-    pivotTable: 'character_user',
+    pivotTable: 'character_map',
     pivotForeignKey: 'user_id',
     pivotRelatedForeignKey: 'character_id',
-    pivotColumns: ['user_id','character_id'],
+    pivotColumns: ['character_id','map_id','user_id','x','y','health','current_health', 'speed', 'armour', 'initiative', 'status', 'fov','hidden'],
     pivotTimestamps: true
   })
   declare characters: ManyToMany<typeof Character>

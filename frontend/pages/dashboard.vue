@@ -1,5 +1,5 @@
 <template>
-    <main v-if="authorized" class="w-screen h-screen flex bg-dark">
+    <main v-if="authorized" class="w-screen h-screen flex bg-dark font-manrope">
         <SideBarComponent @main-window-index="changeMainWindowComponent" />
         <component :is="windows[currentWindow].component" :user="currentUser" />
     </main>
