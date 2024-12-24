@@ -6,8 +6,8 @@ export default {
       colors: {
         dark: '#1F1F1F',       // Custom dark color
         aqua: '#44FFD1',       // Custom aqua color
-        purple: '#5F4BB6',     // Custom purple color
-        light_purple: '#7B6DAA', // Custom light purple color
+        primary: '#353e43',     // Custom primary color
+        light_primary: '#636363', // Custom light primary color
       },
       fontFamily: {
         manrope: ['Manrope', 'sans-serif'], // Add Manrope as the primary sans font

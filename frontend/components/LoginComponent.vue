@@ -1,32 +1,32 @@
 <template>
-    <div v-if="generalError.length > 0" class=" bg-purple h-16 w-fit p-4 fixed top-2 left-2 flex justify-center items-center text-center text-medium text-white rounded-md">
+    <div v-if="generalError.length > 0" class=" bg-primary h-16 w-fit p-4 fixed top-2 left-2 flex justify-center items-center text-center text-medium text-white rounded-md">
         <p>{{ generalError }}</p>
     </div>
 
-    <form @submit.prevent="validateForm"  name="login-form" class=" flex flex-col w-5/12 text-white border-4 rounded-2xl border-purple p-8 animate-fade-right">
+    <form @submit.prevent="validateForm"  name="login-form" class=" flex flex-col w-5/12 text-white border-4 rounded-2xl border-primary p-8 animate-fade-right">
         <h2 class=" text-center font-bold text-5xl uppercase">Login & Explore</h2>
 
-        <hr class=" h-1 bg-purple rounded-full border-none my-8">
+        <hr class=" h-1 bg-primary rounded-full border-none my-8">
 
         <div class=" flex flex-col gap-y-4 w-full">
 
             <div class=" w-full flex flex-col">
                 <label for="username" class=" uppercase font-bold text-lg">Username</label>
-                <input v-model="username" type="text" name="username" class=" my-2 px-2 py-1 h-10 bg-transparent border-[3px] border-purple rounded-md">
+                <input v-model="username" type="text" name="username" class=" my-2 px-2 py-1 h-10 bg-transparent border-[3px] border-primary rounded-md">
                 <p class=" font-extralight text-red-500 animate-pulse animate-twice">{{ usernameError }}</p>
             </div>
             
             <div class=" w-full flex flex-col">
                 <label for="password" class=" uppercase font-bold text-lg">Password</label>
-                <input v-model="password" type="password" name="username" class=" my-2 px-2 py-1 h-10 bg-transparent border-[3px] border-purple rounded-md">
+                <input v-model="password" type="password" name="username" class=" my-2 px-2 py-1 h-10 bg-transparent border-[3px] border-primary rounded-md">
                 <p class=" font-extralight text-red-500 animate-pulse animate-twice">{{ passwordError }}</p>
             </div>
             
         </div>
 
         <div class="flex justify-center items-center gap-4 mt-12">
-            <button type="submit" class="px-4 py-2 w-fit border-[3px] border-purple bg-purple text-white font-extrabold uppercase rounded-md hover:bg-white hover:text-purple transition-colors hover:border-white" >Login</button>
-            <button @click="emitChangeToRegister()" type="button" class="px-4 py-2 w-fit border-[3px] border-purple text-purple font-extrabold uppercase rounded-md hover:bg-white hover:text-purple transition-colors hover:border-white" >Register</button>
+            <button type="submit" class="px-4 py-2 w-fit border-[3px] border-primary bg-primary text-white font-extrabold uppercase rounded-md hover:bg-white hover:text-primary transition-colors hover:border-white" >Login</button>
+            <button @click="emitChangeToRegister()" type="button" class="px-4 py-2 w-fit border-[3px] border-primary text-primary font-extrabold uppercase rounded-md hover:bg-white hover:text-primary transition-colors hover:border-white" >Register</button>
         </div>
     </form>
 </template>

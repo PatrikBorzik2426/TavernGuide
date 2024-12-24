@@ -1,6 +1,6 @@
 <template>
     <div class="py-4 px-8 w-full h-full">
-        <div v-if="generalError.length > 0" class=" bg-purple h-16 w-fit p-4 fixed top-2 right-2 flex justify-center items-center text-center text-medium text-white rounded-md">
+        <div v-if="generalError.length > 0" class=" bg-primary h-16 w-fit p-4 fixed top-2 right-2 flex justify-center items-center text-center text-medium text-white rounded-md">
             <p>{{ generalError }}</p>
         </div>
 
@@ -9,7 +9,7 @@
             <form @submit.prevent="verifyCreationForm" class="flex items-center gap-8 text-white max-w-[800px]">
                 <div class=" w-full flex flex-col mt-auto">
                     <label for="name" class=" uppercase font-bold text-lg">Name</label>
-                    <input v-model="nameInput" type="text" name="username" class=" mt-2 px-2 py-1 h-11 bg-transparent border-[3px] border-purple rounded-md"
+                    <input v-model="nameInput" type="text" name="username" class=" mt-2 px-2 py-1 h-11 bg-transparent border-[3px] border-primary rounded-md"
                     :class="{'mb-2': nameError !== '' || descriptionError !== ''}"
                     >
                     <p class=" relative font-extralight text-red-500 animate-pulse animate-twice">{{ nameError }}</p>
@@ -17,14 +17,14 @@
                
                 <div class=" w-full flex flex-col mt-auto">
                     <label for="description" class=" uppercase font-bold text-lg">Description</label>
-                    <input v-model="descriptionInput" type="text" name="username" class=" mt-2 px-2 py-1 h-11 bg-transparent border-[3px] border-purple rounded-md"
+                    <input v-model="descriptionInput" type="text" name="username" class=" mt-2 px-2 py-1 h-11 bg-transparent border-[3px] border-primary rounded-md"
                     :class="{'mb-2': nameError !== '' || descriptionError !== ''}"
                     >
                     <p class=" font-extralight text-red-500 animate-pulse animate-twice">{{ descriptionError }}</p>
                 </div>
 
                 <button type="submit" 
-                class="px-4 py-2 min-w-fit mt-auto max-h-fit border-[3px] border-purple bg-purple text-white font-medium uppercase rounded-md hover:bg-white hover:text-purple transition-colors hover:border-white"
+                class="px-4 py-2 min-w-fit mt-auto max-h-fit border-[3px] border-primary bg-primary text-white font-medium uppercase rounded-md hover:bg-white hover:text-primary transition-colors hover:border-white"
                 :class="{'my-auto': nameError !== '' || descriptionError !== ''}"
                 >
                 Create New Campaign
@@ -33,10 +33,10 @@
             <form @submit.prevent="joinCampaign()" class="flex items-center gap-8 text-white w-3/12">
                 <div class=" w-full flex flex-col mt-auto">
                     <label for="campaign_name" class=" uppercase font-bold text-lg">Campaign Name</label>
-                    <input v-model="campaignNameToJoin" type="text" name="campaign_name" class=" mt-2 px-2 py-1 h-11 bg-transparent border-[3px] border-purple rounded-md">
+                    <input v-model="campaignNameToJoin" type="text" name="campaign_name" class=" mt-2 px-2 py-1 h-11 bg-transparent border-[3px] border-primary rounded-md">
                 </div>
                 <button type="submit" 
-                class="px-4 py-2 min-w-fit mt-auto max-h-fit border-[3px] border-purple bg-purple text-white font-medium uppercase rounded-md hover:bg-white hover:text-purple transition-colors hover:border-white"                >
+                class="px-4 py-2 min-w-fit mt-auto max-h-fit border-[3px] border-primary bg-primary text-white font-medium uppercase rounded-md hover:bg-white hover:text-primary transition-colors hover:border-white"                >
                 JOIN
                 </button>
             </form>
@@ -44,10 +44,10 @@
         
         <ul class=" grid grid-cols-4 gap-8 w-full mt-12 text-white">
             <li v-for="(campaign, index) in campaigns" :key="index" 
-            class=" flex flex-col justify-center items-center gap-y-4 w-full h-full bg-purple p-8 rounded-lg"
+            class=" flex flex-col justify-center items-center gap-y-4 w-full h-full bg-primary p-8 rounded-lg"
             >   
                 <input v-model="campaign.name" @blur="updateCampaign(index, campaign.id)" type="text" class=" bg-transparent uppercase text-xl font-bold text-center">
-                <input v-model="campaign.description" @blur="updateCampaign(index, campaign.id)" type="text" class=" bg-transparent text-lg text-center">
+                <input v-model="campaign.description" @blur="updateCampaign(index, campaign.id)" type="text" class=" bg-transparent text-lg text-center w-full">
                 <p>DM: <span class="font-bold ">{{ campaign.dm.login }}</span></p>
                 <div class="flex gap-x-4">
                     <button @click="openCampaign(index)" type="button" class="flex justify-center items-center w-10 aspect-square bg-white rounded-full hover:animate-pulse animate-infinite">

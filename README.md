@@ -1,23 +1,24 @@
 # TavernGuide
 #### TO-DO
-- [ ] Registrácia používateľa
-- [ ] Prihlásenie používateľa
-- [ ] Vytvoriť kampaň
-- [ ] Pridať sa do kampane
+- [x] Registrácia používateľa
+- [x] Prihlásenie používateľa
+- [x] Vytvoriť kampaň
+- [x] Pridať sa do kampane
 - [ ] Pozvať do kampane
-- [ ] Pridanie máp
+- [x] Pridanie máp
 - [ ] Pridanie mapových objektov
-- [ ] Pridanie postavy
-- [ ] Výber postavy
-- [ ] Priradenie postavy
-- [ ] Opustenie kampane
-- [ ] Vymazanie mapy
-- [ ] Vymazanie postavy
+- [ ] Pridanie premennej "stena" do jednotlivých cells
+- [x] Pridanie postavy
+- [x] Výber postavy
+- [x] Priradenie postavy
+- [x] Opustenie kampane
+- [x] Vymazanie mapy
+- [x] Vymazanie postavy
 - [ ] Vyhodenie hráča
-- [ ] Hody kockou
+- [x] Hody kockou
 - [ ] Poznámkový blok
   
 #### Color Pallet
 - #1F1F1F
 - #44FFD1
-- #5F4BB6
+- #353e43

@@ -1,21 +1,27 @@
 <template>
-    <div  id="mapBar" :class="{'bg-purple h-[15vh]' : showMaps, 'bg-transparent h-[1vh]': !showMaps}" class="flex justify-start items-center w-screen  max-h-[320px] bg-purple z-[100] px-[5%]">
+    <div  id="mapBar" :class="{'bg-primary h-[15vh]' : showMaps, 'bg-transparent h-[1vh]': !showMaps}" class="flex justify-start items-center w-screen  max-h-[320px] bg-primary z-[500] px-[5%]">
         <form @submit.prevent="createMap" v-if="showMaps" class="flex justify-center items-center min-w-fit gap-x-8">
-            <div class=" flex flex-col justify-center items-end text-white">
+            <div class=" flex flex-col justify-center relative items-end text-white">
                 <div class="flex items-center gap-2">
                     <label for="mapName" class="text-white uppercase font-medium">Map Name:</label>
-                    <input v-model="mapNameInput" type="text" id="mapName" name="mapName" class=" mt-2 px-2 py-1 h-8 bg-transparent border-[3px] border-white rounded-lg">
+                    <input @focus="showRecommendationsTrueFalse" @blur="showRecommendationsTrueFalse" v-model="mapNameInput" type="text" id="mapName" name="mapName" class=" mt-2 px-2 py-1 h-8 bg-transparent border-[3px] border-white rounded-lg">
                 </div>
                 <div class="flex items-center gap-2">
                     <label for="mapImgUrl" class="text-white uppercase font-medium">Map Image URL:</label>
-                    <input v-model="mapImgUrlInput" type="text" id="mapImgUrl" name="mapImgUrl" class=" mt-2 px-2 py-1 h-8 bg-transparent border-[3px] border-white rounded-lg">
+                    <input @focus="showRecommendationsTrueFalse" @blur="showRecommendationsTrueFalse" v-model="mapImgUrlInput" type="text" id="mapImgUrl" name="mapImgUrl" class=" mt-2 px-2 py-1 h-8 bg-transparent border-[3px] border-white rounded-lg ">
                 </div>
+                <ul v-if="showRecommendations && allMaps.length>0" class="flex flex-col gap-2 items-center text-center justify-center absolute p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-transparent scrollbar-track-transparent max-h-[20vh] w-fit h-fit top-[120%] right-[50%] bg-white rounded-md">
+                    <p class="text-primary mb-2">Previously Used:</p>
+                    <li @click="setCurrentImgUrl(map)" v-for="(map,index) in allMaps" :key="index" class="w-40 border-2 border-primary rounded-md text-primary hover:bg-primary hover:text-bold hover:text-white cursor-pointer">
+                        <p>{{ map.name }}</p>
+                   </li> 
+                </ul>
             </div>
 
-            <button type="submit" class="p-2 text-center text-md font-medium bg-white text-purple rounded-md hover:animate-wiggle animate-infinite">Add Map</button>
+            <button type="submit" class="p-2 text-center text-md font-medium bg-white text-primary rounded-md hover:animate-wiggle animate-infinite">Add Map</button>
         </form>
 
-        <button id="mapClosingBtn" @click="hideMaps()" type="button" class=" w-[2vw] h-[3vh] fixed top-[11.5%] left-[49%] rounded-full border-2 border-white bg-purple z-100">
+        <button id="mapClosingBtn" @click="hideMaps()" type="button" class=" w-[2vw] h-[3vh] fixed top-[11.5%] left-[49%] rounded-full border-2 border-white bg-primary z-100">
             <img :src="imgHide" class="mx-auto">
         </button>
 
@@ -70,6 +76,7 @@ const props = defineProps({
 // Display constants
 const showMaps = ref<boolean>(true);
 const imgHide = ref<string>(arrowUp);
+const showRecommendations = ref<boolean>(false);
 
 // Form functionality constants
 const mapNameInput = ref<string>('');
@@ -80,6 +87,7 @@ const grid_y = ref<number>(0);
 
 const maps = ref<Map[]>([]);
 const currentMap = ref<Map>();
+const allMaps = ref<Map[]>([]);
 
 
 function hideMaps(){
@@ -216,6 +224,17 @@ async function updateMap(map_id : number) {
     }
 }
 
+function setCurrentImgUrl(map: Map){
+    mapImgUrlInput.value = map.url;
+    mapNameInput.value = map.name;
+}
+
+function showRecommendationsTrueFalse(){
+    setTimeout(() => {
+        showRecommendations.value = !showRecommendations.value;
+    }, 250)
+}
+
 onMounted(async () => {
     await getMaps();
 
@@ -227,6 +246,16 @@ onMounted(async () => {
         await updateGridY()
     }else{
         selectCurrentMap(maps.value[0]);
+    }
+
+    const result = await callAxios({campaign_id : props.campaign_id}, 'maps/listAll');
+
+    if (result.status !== 200){
+        console.error('Error fetching all maps');
+        return;
+    }else{
+        console.log('All Maps fetched successfully');
+        allMaps.value = result.maps;
     }
 })
 

@@ -3,10 +3,10 @@
 
       <InitiativeComponent :current-user="currentUser" :combat-init="combatInitiative" :action="currentCombatAction" :current-initiative="currentPlayerTurn" :campaign_id="campaign_id" :map_id="currentMapId"/>
 
-      <div class=" gap-2 w-full h-full max-w-[100vw] bg-dark overflow-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-purple">  
+      <div class=" gap-2 w-full h-full max-w-[100vw] bg-dark overflow-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary">  
         <div class="flex flex-col max-w-fit gap-y-2 fixed top-[20%] left-[90%] mb-4 justify-center z-20">
-          <img src="@/assets/imgs/zoom_in.svg" @click="zoomIn" class="bg-purple text-white w-fit p-2 rounded-full cursor-pointer">
-          <img src="@/assets/imgs/zoom_out.svg" @click="zoomOut" class="bg-purple text-white w-fit p-2 rounded-full cursor-pointer">
+          <img src="@/assets/imgs/zoom_in.svg" @click="zoomIn" class="bg-primary text-white w-fit p-2 rounded-full cursor-pointer">
+          <img src="@/assets/imgs/zoom_out.svg" @click="zoomOut" class="bg-primary text-white w-fit p-2 rounded-full cursor-pointer">
           <img src="@/assets/imgs/reset.svg" @click="resetZoom" class="bg-gray-500 text-white w-fit p-2 rounded-full cursor-pointer">
         </div>
   
@@ -39,6 +39,7 @@
           </div>
         </div>
        </div>
+       <audio ref="soundPlayer" class=" hidden "></audio>
     </div>
   </template>
   
@@ -64,6 +65,8 @@ import type { CombatInit } from '~/models/CombatInit';
     baseUrl: 'http://127.0.0.1:3333',
   });
 
+  const backendUrl = 'http://127.0.0.1:3333/';
+
   // Subscriptions
   let unsubscribeActiveMap = ref<Function>();
   
@@ -75,6 +78,12 @@ import type { CombatInit } from '~/models/CombatInit';
 
   let unsubscribeCombat = ref<Function>();
   let activeSubscribeCombat : Subscription;
+
+  let unsubscribeSounds = ref<Function>();
+  let activeSubscribeSounds : Subscription;
+
+  // Sounds
+  const soundPlayer = ref<HTMLAudioElement | null>(null);
   
   // Grid constants
   const cellsOfGrid = ref<CellOfGrid[]>([]);
@@ -234,10 +243,16 @@ import type { CombatInit } from '~/models/CombatInit';
       await unsubscribeCombat.value();
       await activeSubscribeCombat.delete();
     }
+
+    if(unsubscribeSounds.value){
+      await unsubscribeSounds.value();
+      await activeSubscribeSounds.delete();
+    }
     
     await subscribeToCurrentCharMovement();
     await subscribeToReveal();
     await subscribeToCombat();
+    await subscribeToSounds();
   }
 
   function setMaxResolution(url: string) {
@@ -470,8 +485,21 @@ import type { CombatInit } from '~/models/CombatInit';
     unsubscribeCombat.value = activeSubscribeCombat.onMessage((message : any) => {
       const action = message.action;
 
+      if (action === 'end'){
+        combatStarted.value = false;
+        combatInitiative.value = [];
+        currentPlayerTurn.value = 0;
+        currentCombatAction.value = '';
+        return;
+      }
+
       if (action === 'next'){
         currentPlayerTurn.value++;
+
+        if (currentPlayerTurn.value >= combatInitiative.value.length){
+          currentPlayerTurn.value = 0;
+        }
+
         return;
       }
 
@@ -496,13 +524,42 @@ import type { CombatInit } from '~/models/CombatInit';
 
       if (characterIndex === -1){
         combatInitiative.value.push(characterInit);
+        // Sort array based on initiative
+        combatInitiative.value.sort((a, b) => {
+        return b.randomRoll + b.initiative - (a.randomRoll + a.initiative)});
       }
 
       console.log('Received combat message', message);
     });
     
   }
- 
+
+  async function subscribeToSounds() {
+    const broadcast = `playSound:map_${currentMapId.value}`;
+
+    activeSubscribeSounds = transmit.subscription(broadcast);
+    await activeSubscribeSounds.create();
+
+    unsubscribeSounds.value = activeSubscribeSounds.onMessage((message : any) => {
+      const soundUrl = message.sound_url;
+      const action = message.action;
+
+      if (action === 'stop'){
+        if (soundPlayer.value){
+          soundPlayer.value.pause();
+          soundPlayer.value.currentTime = 0;
+        }
+      }
+      
+      if (action === 'play'){
+        if (soundPlayer.value){
+          soundPlayer.value.src = backendUrl + soundUrl;
+          soundPlayer.value.play();
+        }
+      }
+
+    });
+  }
 
   onMounted(async () => {
     const result = await callAxios({ campaign_id: campaign_id }, 'maps/getActive');

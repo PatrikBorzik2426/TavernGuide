@@ -48,6 +48,8 @@ export default class CombatsController {
             return ctx.response.badRequest({message: "User not found", status: 404})
         }
 
+        try{
+
         const {campaign_id, map_id} = ctx.request.all()
 
         // Check if user is the DM of the campaign
@@ -66,9 +68,35 @@ export default class CombatsController {
         })
 
         return ctx.response.ok({message: "Combat started", status: 200})
+        }catch(e){
+            console.log("Error starting combat: " + e)
+            return ctx.response.badRequest(e)
+        }
     }
 
     async next(ctx: HttpContext){
+            
+        const user = ctx.auth.user
+
+        if(!user){
+            console.log("User not found")
+            return ctx.response.badRequest({message: "User not found", status: 404})
+        }
+
+        const {campaign_id, map_id} = ctx.request.all()
+
+        // Check if user is the DM of the campaign
+    
+        console.log("Next turn for campaign: " + campaign_id + " and map: " + map_id)
+
+        transmit.broadcast(`campaign:${campaign_id}map:${map_id}:combat`,{
+            action: 'next'
+        })
+
+        return ctx.response.ok({message: "Next turn", status: 200})
+    }
+
+    async end(ctx: HttpContext){
             
             const user = ctx.auth.user
     
@@ -80,20 +108,13 @@ export default class CombatsController {
             const {campaign_id, map_id} = ctx.request.all()
     
             // Check if user is the DM of the campaign
-    
-            const campaign = await user.related('campaigns').query().where('campaign_id', campaign_id).where('is_dm',true).first()
-    
-            if(!campaign){
-                console.log("User is not the DM of the campaign")
-                return ctx.response.badRequest({message: "User is not the DM of the campaign", status: 404})
-            }
-    
-            console.log("Next turn for campaign: " + campaign_id + " and map: " + map_id)
+        
+            console.log("Ending combat for campaign: " + campaign_id + " and map: " + map_id)
     
             transmit.broadcast(`campaign:${campaign_id}map:${map_id}:combat`,{
-                action: 'next'
+                action: 'end'
             })
     
-            return ctx.response.ok({message: "Next turn", status: 200})
+            return ctx.response.ok({message: "Combat ended", status: 200})
         }
 }

@@ -2,7 +2,7 @@
     <div class="w-full rounded-full relative z-[200]">
         <img @contextmenu.prevent="showCharacterMenu()" :src="'http://localhost:3333/storage/characters/' + props.character?.avatarUrl" class="w-full h-full">
         <div v-if="showMenu" 
-        class=" w-64 h-fit p-4 bg-light_purple absolute rounded-xl border-2 border-white"
+        class=" w-64 h-fit p-4 bg-light_primary absolute rounded-xl border-2 border-white"
         :class="{ 'bottom-[120%]' : props.cell?.y >= 5, ' top-[120%] left-[120%]' : props.cell?.y < 5 }"
         >
             <div class="flex justify-between">
@@ -14,38 +14,39 @@
                 <p class=" uppercase font-bold text-center text-white col-start-3">To</p>
 
                 <label for="maxHealth" class=" col-start-1 text-white font-medium">Health:</label>
-                <input @blur="updateUser()" name="maxHealth" v-model="characterCurrentHealth" type="number" class="col-start-2 max-h-fit bg-purple border-white border-2 rounded-md text-white text-center" placeholder="Health">
-                <input @blur="updateUser()" name="currentHealth" v-model="characterHealth" type="number" class="col-start-3 max-h-fit bg-purple border-white border-2 rounded-md text-white text-center" placeholder="Health">
+                <input @blur="updateUser()" name="maxHealth" v-model="characterCurrentHealth" type="number" class="col-start-2 max-h-fit bg-primary border-white border-2 rounded-md text-white text-center" placeholder="Health">
+                <input @blur="updateUser()" name="currentHealth" v-model="characterHealth" type="number" class="col-start-3 max-h-fit bg-primary border-white border-2 rounded-md text-white text-center" placeholder="Health">
                 
                 <label for="armour" class="col-start-1 text-white font-medium">Armour:</label>
-                <input @blur="updateUser()" name="armour" v-model="armour" type="number" class="col-start-2 max-h-fit bg-purple border-white border-2 rounded-md text-white text-center" placeholder="Health">
+                <input @blur="updateUser()" name="armour" v-model="armour" type="number" class="col-start-2 max-h-fit bg-primary border-white border-2 rounded-md text-white text-center" placeholder="Health">
                 
                 <label for="speed" class="col-start-1 text-white font-medium">Speed:</label>
-                <input @blur="updateUser()" name="speed" v-model="speed" type="number" class="col-start-2 max-h-fit bg-purple border-white border-2 rounded-md text-white text-center" placeholder="Health">
+                <input @blur="updateUser()" name="speed" v-model="speed" type="number" class="col-start-2 max-h-fit bg-primary border-white border-2 rounded-md text-white text-center" placeholder="Health">
                 
                 <label for="fov" class="col-start-1 text-white font-medium">FOV:</label>
-                <input @blur="updateUser()" name="fov" v-model="fov" type="number" class="col-start-2 max-h-fit bg-purple border-white border-2 rounded-md text-white text-center" placeholder="Health">
+                <input @blur="updateUser()" name="fov" v-model="fov" type="number" class="col-start-2 max-h-fit bg-primary border-white border-2 rounded-md text-white text-center" placeholder="Health">
             
                 <label for="initiative" class="col-start-1 text-white font-medium">Initiative:</label>
-                <input @blur="updateUser()" name="initiative" v-model="initiative" type="number" class="col-start-2 max-h-fit bg-purple border-white border-2 rounded-md text-white text-center" placeholder="Health">
+                <input @blur="updateUser()" name="initiative" v-model="initiative" type="number" class="col-start-2 max-h-fit bg-primary border-white border-2 rounded-md text-white text-center" placeholder="Health">
 
             </form>
             <div class="flex justify-between mt-4">
                 <img v-if="props.currentUser?.id === props.currentDmId" 
                 @click="changeTokenHidden()" 
                 :src="hideToken ? eyeOff : eye" 
-                class="p-2 bg-purple rounded-full w-10 cursor-pointer hover:animate-pulse animate-infinite"
+                class="p-2 bg-primary rounded-full w-10 cursor-pointer hover:animate-pulse animate-infinite"
                 />
-                <img @click="addCharacterToCombat" src="@/assets/imgs/swords.svg" class=" p-2 bg-purple rounded-full w-10 cursor-pointer hover:animate-pulse animate-infinite">
-                <img v-if="props.currentUser?.id === props.currentDmId" @click="removeFromCell()" src="@/assets/imgs/delete_white.svg" class=" p-2 bg-purple rounded-full w-10 cursor-pointer hover:animate-pulse animate-infinite">
+                <img @click="addCharacterToCombat" src="@/assets/imgs/swords.svg" class=" p-2 bg-primary rounded-full w-10 cursor-pointer hover:animate-pulse animate-infinite">
+                <img v-if="props.currentUser?.id === props.currentDmId" @click="removeFromCell()" src="@/assets/imgs/delete_white.svg" class=" p-2 bg-primary rounded-full w-10 cursor-pointer hover:animate-pulse animate-infinite">
             </div>
         </div>
         <div class="absolute top-[100%] left-[0%] w-full">
-            <p v-if="currentUser?.id === currentDmId" class=" text-white font-bold bg-dark text-center rounded-md absolute bottom-[100%]">{{ currentCharacter?.pivot_id }}</p>
-            <p class="uppercase font-medium bg-light_purple/70 px-2 py-1 text-white text-sm text-center rounded-full">{{ currentCharacter?.name }}</p>
+            <p v-if="currentUser?.id === currentDmId" class=" text-white p-1 font-bold bg-dark text-center rounded-full absolute bottom-[100%]">{{ currentCharacter?.pivot_id }}</p>
+            <p class="uppercase font-medium bg-light_primary/70  text-white text-sm text-center rounded-full">{{ currentCharacter?.name }}</p>
             <div class=" w-full h-2 bg-red-200 rounded-full">
                 <div class="max-w-full h-full bg-red-500 rounded-full" :style="{ width: (characterCurrentHealth / characterHealth) * 100 + '%' }"></div>
             </div>
+            <p v-if="currentUser?.id === currentDmId" class="p-1 text-white font-bold bg-blue-500 text-center rounded-full absolute bottom-[100%] left-[80%]">{{ armour }}</p>
         </div>
     </div>
 

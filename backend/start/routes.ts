@@ -20,10 +20,14 @@ const CampaignsController = () => import('#controllers/campaigns_controller')
 const MapsController = () => import('#controllers/maps_controller')
 const CharactersController = () => import('#controllers/characters_controller')
 const CombatsController = () => import('#controllers/combats_controller')
+const SoundsController = () => import('#controllers/sounds_controller')
 
 const PATH_TRAVERSAL_REGEX = /(?:^|[\\/])\.\.(?:[\\/]|$)/
 
+// Serve avatar files from the storage directory
 router.get('/storage/characters/*', ({ request, response }) => {
+  console.log("Serving avatar")
+
   const filePath = request.param('*').join(sep)
   const normalizedPath = normalize(filePath)
 
@@ -34,6 +38,23 @@ router.get('/storage/characters/*', ({ request, response }) => {
   }
 
   const absolutePath = app.makePath('storage/characters', normalizedPath)
+  return response.download(absolutePath)
+})
+
+// Serve sounds from the storage/sounds directory
+router.get('/storage/sounds/*', ({ request, response }) => {
+  console.log("Serving sound")
+
+  const filePath = request.param('*').join(sep)
+  const normalizedPath = normalize(filePath)
+
+  console.log(normalizedPath)
+  
+  if (PATH_TRAVERSAL_REGEX.test(normalizedPath)) {
+    return response.badRequest('Malformed path')
+  }
+
+  const absolutePath = app.makePath('storage/sounds', normalizedPath)
   return response.download(absolutePath)
 })
 
@@ -58,6 +79,7 @@ router.group(()=>{
 router.group(()=>{
   router.post('/create',[MapsController,'create']).use(middleware.auth()),
   router.post('/list',[MapsController,'listMaps']).use(middleware.auth()),
+  router.post('/listAll',[MapsController,'listAllMaps']).use(middleware.auth()),
   router.post('/delete',[MapsController,'deleteMap']).use(middleware.auth()),
   router.post('/update',[MapsController,'updateMap']).use(middleware.auth()),
   router.post('/getActive',[MapsController,'getActiveMap']).use(middleware.auth()),
@@ -76,5 +98,14 @@ router.group(()=>{
 router.group(()=>{
   router.post('/initiate',[CombatsController,'initiate']).use(middleware.auth()),
   router.post('/start',[CombatsController,'start']).use(middleware.auth()),
-  router.post('/next',[CombatsController,'next']).use(middleware.auth())
+  router.post('/next',[CombatsController,'next']).use(middleware.auth()),
+  router.post('/end',[CombatsController,'end']).use(middleware.auth())
 }).prefix('combats')
+
+router.group(()=>{
+  router.post('/upload',[SoundsController,'upload']).use(middleware.auth()),
+  router.post('/list',[SoundsController,'list']).use(middleware.auth()),
+  router.post('/play',[SoundsController,'playSound']).use(middleware.auth()),
+  router.post('/stop',[SoundsController,'stopSound']).use(middleware.auth()),
+  router.post('/delete',[SoundsController,'delete']).use(middleware.auth())
+}).prefix('sounds')

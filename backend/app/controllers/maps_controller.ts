@@ -17,6 +17,38 @@ export default class MapsController {
         console.log("New map with name: " + name + " and url: " + url)
 
         try{
+
+            const existingMap = await Map.query().where('image_url', url).where('name',name).first()
+
+            if(existingMap){
+
+                // Check if map is already assigned to the campaign
+                const temp_map = await existingMap.related('campaigns').query().where('campaign_id', campaign_id).first()
+
+                if(temp_map){
+                    console.log("Map already assigned to campaign")
+                    return ctx.response.badRequest({message: "Map already assigned to campaign", status: 400})
+                }
+
+                await existingMap.related('campaigns').attach({
+                    [campaign_id]: {
+                        grid_x: grid_x,
+                        grid_y: grid_y,
+                        active: false
+                    }
+                })
+
+                const map = {
+                    id: existingMap.id,
+                    name: existingMap.name,
+                    url: existingMap.image_url,
+                    grid_x: grid_x,
+                    grid_y: grid_y
+                }
+
+                return ctx.response.badRequest({map: map, status: 400})
+            }
+            
             const newMap = await Map.create({ name: name, image_url: url })
 
             await newMap.related('campaigns').attach({
@@ -38,6 +70,8 @@ export default class MapsController {
                 grid_x: temp_map.$extras.pivot_grid_x,
                 grid_y: temp_map.$extras.pivot_grid_y
             }
+
+            this.delteMapsWithoutCampaign()
 
             return ctx.response.ok({map: map, status: 200})
         }catch(e){
@@ -82,6 +116,34 @@ export default class MapsController {
         }
     }
 
+    async listAllMaps(ctx: HttpContext) { 
+        const user = ctx.auth.user
+
+        if(!user){
+            return ctx.response.badRequest({message: "User not found", status: 404})
+        }
+        // Check if DM
+
+        try{
+            const mapsOrigin = await Map.all()
+
+            const maps = mapsOrigin.map((map : Map) => {
+                return {
+                    id: map.id,
+                    name: map.name,
+                    url: map.image_url,
+                    grid_x: map.$extras.pivot_grid_x,
+                    grid_y: map.$extras.pivot_grid_y
+                }
+            })
+
+            return ctx.response.ok({maps: maps, status: 200})
+        }catch(e){
+            console.log("Error listing all maps: " + e)
+            return ctx.response.badRequest(e)
+        }
+    }
+
     async deleteMap(ctx: HttpContext) {
         const user = ctx.auth.user
 
@@ -107,7 +169,8 @@ export default class MapsController {
         try{
             const map = await Map.findOrFail(map_id)
 
-            await map.delete()
+            // Delete map from pivot table
+            await map.related('campaigns').detach()
 
             return ctx.response.ok({message: "Map deleted", status: 200})
         }catch(e){
@@ -251,6 +314,13 @@ export default class MapsController {
             console.log("Error revealing map: " + e)
             return ctx.response.badRequest(e)
         }
+    }
+
+    async delteMapsWithoutCampaign() {
+        // Delete all maps that are not assigned to a campaign
+        const maps = await Map.query().doesntHave('campaigns').delete()
+        
+        console.log("Deleted maps: " + maps.length)
     }
 
 }

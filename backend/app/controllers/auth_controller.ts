@@ -43,9 +43,9 @@ export default class AuthController {
         const user = ctx.auth.user
 
         if(!user){
-            return ctx.response.badRequest({message: "User not found", status: 404})
+            return ctx.response.badRequest({message: "User not found",  status: 404})
         }else{
-            return ctx.response.ok({user,message: "User found, welcome!", status: 200})
+            return ctx.response.ok({message: "User found, welcome!", user: user, status: 200})
         }
     }
 
@@ -66,4 +66,5 @@ export default class AuthController {
             return ctx.response.ok({user,message: "User found, goodbye!", status: 200})
         }
     }
+
 }

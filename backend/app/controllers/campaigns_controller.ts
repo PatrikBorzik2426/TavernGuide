@@ -98,6 +98,14 @@ export default class CampaignsController {
 
         const {campaign_id} = ctx.request.all()
 
+        //Check if user is DM of campaign
+
+        const isDM = await user.related('campaigns').query().where('campaign_id', campaign_id).wherePivot('is_dm', true).first()
+
+        if(!isDM){
+            return ctx.response.badRequest({message: "User is not DM", status: 401})
+        }
+
         try{
             const campaign = await user
             .related('campaigns')
@@ -128,6 +136,12 @@ export default class CampaignsController {
         }
 
         const {campaign_id, name, description} = ctx.request.all()
+
+        const isDM = await user.related('campaigns').query().where('campaign_id', campaign_id).wherePivot('is_dm', true).first()
+
+        if(!isDM){
+            return ctx.response.badRequest({message: "User is not DM", status: 401})
+        }
 
         try{
             const campaign = await user

@@ -1,6 +1,6 @@
 <template>
- <div v-if="props.combatInit?.length>0 && combatStarted" class="flex p-4 w-fit h-fit bg-purple text-white fixed top-[65%] left-[70%] z-[100] gap-10 items-center rounded-md">
-    <img src="@/assets/imgs/swords.svg" class=" p-2 w-3/12 h-fit mx-auto bg-purple border-2 border-white  rounded-full" >
+ <div v-if="props.combatInit?.length>0 && combatStarted" class="flex p-4 w-fit h-fit bg-primary text-white fixed top-[65%] left-[70%] z-[100] gap-10 items-center rounded-md">
+    <img src="@/assets/imgs/swords.svg" class=" p-2 w-3/12 h-fit mx-auto bg-primary border-2 border-white  rounded-full" >
     <div v-if="currentUser?.id === combatInit[props.currentInitiative].owner_id" class=" flex flex-col w-44">
         <div v-for="(phase,index) in options" :key="index" class=" flex w-full gap-8">
             <div class="w-1 h-12 relative"
@@ -10,10 +10,10 @@
                 }"
             >
                 <div 
-                class=" w-6 aspect-square rounded-full border-white border-2 bg-purple absolute top-3 -left-2.5 "
+                class=" w-6 aspect-square rounded-full border-white border-2 bg-primary absolute top-3 -left-2.5 "
                 :class = "{ 
                     'bg-white' : index === currentIndex,
-                    'bg-purple' : index !== currentIndex,
+                    'bg-primary' : index !== currentIndex,
                     'border-white/50' : index !== currentIndex
                 }"
                 ></div>
@@ -63,8 +63,6 @@ const props = defineProps<{
 // Functional constants
 const currentIndex = ref<number>(0);
 const combatStarted = ref<boolean>(false);
-const myTurnFinished = ref<boolean>(false);
-const myTurnStarted = ref<boolean>(false);
 
 
 async function proceedInTurn() {
@@ -78,6 +76,8 @@ async function proceedInTurn() {
         }
 
         await callAxios(body, 'combats/next')
+
+        currentIndex.value = 0;
     }
 }
 

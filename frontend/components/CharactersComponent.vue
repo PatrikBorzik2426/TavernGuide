@@ -1,7 +1,7 @@
 <template>
     <div 
-        class=" h-full py-2 px-4 bg-light_purple sticky top-0 left-0 text-white z-[100] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-transparent"
-        :class="{'w-[25vw] bg-light_purple': showCharacters, 'w-[0vw] bg-transparent': !showCharacters, 'overflow-y-hidden' : !showCharacters, 'overflow-y-scroll' : showCharacters}"
+        class=" h-full py-2 px-4 bg-light_primary sticky top-0 left-0 text-white z-[100] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-transparent"
+        :class="{'w-[25vw] bg-light_primary': showCharacters, 'w-[0vw] bg-transparent': !showCharacters, 'overflow-y-hidden' : !showCharacters, 'overflow-y-scroll' : showCharacters}"
         
         >
             <h1 v-if="showCharacters" class="text-white text-2xl text-center">Characters</h1>
@@ -50,7 +50,7 @@
                 <div class="flex justify-between px-1 py-2">
                     <label class="inline-flex items-center cursor-pointer">
                         <input type="checkbox" v-model="isNPCInput" class="sr-only peer">
-                        <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-white rounded-full peer dark:bg-light_purple peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-purple"></div>
+                        <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-white rounded-full peer dark:bg-light_primary peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
                         <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">NPC?</span>
                     </label>
                     <div v-if="isNPCInput" class="flex items-baseline justify-center gap-2">
@@ -59,7 +59,7 @@
                     </div>
                 </div>
 
-                <button type="submit" class="p-2 mt-4 text-center text-md font-medium bg-white text-purple rounded-md hover:animate-pulse animate-infinite">Add Character</button>
+                <button type="submit" class="p-2 mt-4 text-center text-md font-medium bg-white text-primary rounded-md hover:animate-pulse animate-infinite">Add Character</button>
             </form>
             
             <div v-else-if="showCharacters && showTab === 1" class="">
@@ -121,7 +121,7 @@
                 </div>
             </div>     
     </div>
-    <button id="charactersClosing" @click="hideCharacters()" type="button" class=" w-[1.5vw] h-[4vh] absolute top-[50%] left-[24.5%] rounded-full border-2 border-white bg-light_purple z-[200]"
+    <button id="charactersClosing" @click="hideCharacters()" type="button" class=" w-[1.5vw] h-[4vh] absolute top-[50%] left-[24.5%] rounded-full border-2 border-white bg-light_primary z-[200]"
     :class="{'left-[24.5%]' : showCharacters, 'left-[3%]' : !showCharacters }">
             <img :src="hideIcon" class="mx-auto">
     </button>

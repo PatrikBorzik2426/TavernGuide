@@ -1,5 +1,5 @@
 <template>
-    <div class="w-[20vw] h-full bg-purple">
+    <div class="w-[20vw] h-full bg-primary">
 
     </div>
 </template>
