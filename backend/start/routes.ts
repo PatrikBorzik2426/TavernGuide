@@ -113,5 +113,6 @@ router.group(()=>{
 
 router.group(()=>{
   router.post('/createWalls',[ObjectsController,'createNumerousWalls']).use(middleware.auth()),
-  router.post('/listWalls',[ObjectsController,'listWalls']).use(middleware.auth())
+  router.post('/listWalls',[ObjectsController,'listWalls']).use(middleware.auth()),
+  router.post('/fow',[ObjectsController,'informAboutFow']).use(middleware.auth())
 }).prefix('objects')

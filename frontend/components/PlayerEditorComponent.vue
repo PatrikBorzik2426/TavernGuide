@@ -82,6 +82,9 @@ import type { CombatInit } from '~/models/CombatInit';
   let unsubscribeSounds = ref<Function>();
   let activeSubscribeSounds : Subscription;
 
+  let unsubscribeFow = ref<Function>();
+  let activeSubscribeFow : Subscription;
+
   // Sounds
   const soundPlayer = ref<HTMLAudioElement | null>(null);
   
@@ -96,6 +99,7 @@ import type { CombatInit } from '~/models/CombatInit';
   const forcedUpdateGrid = ref<number>(0);
 
   const wallCells = ref<CellOfGrid[]>([]);
+  const fow = ref<boolean>(false);
 
   // Functionality constants
   const currentUser = ref<User | null>(null);
@@ -158,7 +162,8 @@ import type { CombatInit } from '~/models/CombatInit';
         y: Math.floor(cellsOfGrid.value.length / numberOfColumns.value),
         visibility: false,
         classes: '',
-        character: null
+        character: null,
+        viewedBy: [],
       });
     }
   }
@@ -167,7 +172,7 @@ import type { CombatInit } from '~/models/CombatInit';
     const affectedCellsIds = getCellsInRadius(centerCell.id, radius, numRows, numCols);
     const affectedCells = affectedCellsIds.map(id => cellsOfGrid[id]);
   
-    getDirectionClass(centerCell, affectedCells, radius, numberOfColumns.value, wallCells.value, currentUser.value?.id, currentDmId.value);
+    getDirectionClass(centerCell, affectedCells, radius, numberOfColumns.value, wallCells.value, currentUser.value?.id, currentDmId.value, fow.value);
 
     forcedUpdateGrid.value++;
 
@@ -198,7 +203,28 @@ import type { CombatInit } from '~/models/CombatInit';
       if (cell.character){
         cell.character.x = cell.x;
         cell.character.y = cell.y;
-        await callAxios(cell.character, 'characters/update');
+
+        const body = {
+          id: cell.character.id,
+          name: cell.character.name,
+          avatarUrl : cell.character.avatarUrl,
+          x: cell.x,
+          y: cell.y,
+          health: cell.character.health,
+          current_health: cell.character.current_health,
+          armour: cell.character.armour,
+          speed: cell.character.speed,
+          fov: cell.character.fov,
+          status: cell.character.status,
+          user_id: cell.character.user_id,
+          pivot_id: cell.character.pivot_id,
+          hidden: cell.character.hidden,
+          initiative: cell.character.initiative,
+          action: '',
+          last_cells: []
+        }
+
+        await callAxios(body, 'characters/update');
         const radius = cell.character.fov;
         applyGradients(cell, radius, numberOfRows.value, numberOfColumns.value, cellsOfGrid.value);
       }
@@ -255,6 +281,7 @@ import type { CombatInit } from '~/models/CombatInit';
     await subscribeToReveal();
     await subscribeToCombat();
     await subscribeToSounds();
+    await subscribeToFow();
     await loadWalls();
   }
 
@@ -268,7 +295,6 @@ import type { CombatInit } from '~/models/CombatInit';
     wallCells.value = []
 
     wallCellIds.forEach((cellId : number) => {
-      cellsOfGrid.value[cellId].classes = 'bg-red-500/30';
       wallCells.value.push(cellsOfGrid.value[cellId]);
     });
 
@@ -579,6 +605,26 @@ import type { CombatInit } from '~/models/CombatInit';
         }
       }
 
+    });
+  }
+
+  async function subscribeToFow(){
+    const broadcast = `campaign:${campaign_id}:map:${currentMapId.value}`;
+
+    activeSubscribeFow = transmit.subscription(broadcast);
+    await activeSubscribeFow.create();
+
+    unsubscribeFow.value = activeSubscribeFow.onMessage((message : any) => {
+      const fowStatus = message.fow;
+
+      fow.value = fowStatus;
+
+      if (fowStatus){
+        for (let i = 0; i < cellsOfGrid.value.length; i++){
+          cellsOfGrid.value[i].visibility = false;
+          cellsOfGrid.value[i].classes = '';
+        }
+      }
     });
   }
 

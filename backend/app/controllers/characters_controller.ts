@@ -171,15 +171,11 @@ export default class CharactersController {
     async updateCharacter (ctx : HttpContext){
         const user = ctx.auth.user;
 
-        console.log("Character update: ", ctx.request.all());
-
-        const { id, name, avatarUrl, x, y, health, current_health, armour, speed, fov, status, user_id, pivot_id, hidden, initiative, action } = ctx.request.all();
+        const { id, name, avatarUrl, x, y, health, current_health, armour, speed, fov, status, user_id, pivot_id, hidden, initiative, action, last_cells } = ctx.request.all();
 
         if (!user) {
             return ctx.response.unauthorized({ message: 'Unauthorized', status: 401 });
         }
-
-        console.log("Character ID: " + id);
 
         try{
 
@@ -228,8 +224,6 @@ export default class CharactersController {
             .where('character_id', characterOrigin.id)
             .where('id', pivot_id)
             .first()
-
-            console.log("Character updated: " + JSON.stringify(charactersTemp));
 
             const charBody = {
                 id: characterOrigin.id,

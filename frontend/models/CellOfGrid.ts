@@ -6,5 +6,6 @@ export interface CellOfGrid {
     y: number,
     visibility: boolean,
     classes: string,
-    character: Character | null
+    character: Character | null,
+    viewedBy: Character[]
 }

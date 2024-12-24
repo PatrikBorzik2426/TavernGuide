@@ -1,3 +1,5 @@
+import type { CellOfGrid } from "./CellOfGrid";
+
 export interface Character {
     armour: number,
     avatarUrl: string,
@@ -13,5 +15,6 @@ export interface Character {
     y: number,
     user_id: number,
     pivot_id: number,
-    hidden: boolean
+    hidden: boolean,
+    last_cells: CellOfGrid[]
 }

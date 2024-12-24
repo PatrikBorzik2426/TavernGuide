@@ -19,7 +19,12 @@
             <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4  rounded-full peer dark:bg-light_primary peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:border after:rounded-full after:h-5 after:w-5 after:transition-all  peer-checked:bg-primary"></div>
             <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300 text-left uppercase">Add Walls mode</span>
         </label>
-
+        
+        <label class="inline-flex items-center cursor-pointer">
+            <input v-model="fogOFWar" type="checkbox" @click="changeFoW()" class="sr-only peer">
+            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4  rounded-full peer dark:bg-light_primary peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:border after:rounded-full after:h-5 after:w-5 after:transition-all  peer-checked:bg-primary"></div>
+            <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300 text-left uppercase">FOW</span>
+        </label>
         <ToolKitComponent :combat-init="combatInitiative" :campaign_id="campaign_id" :map_id="currentMapId" :current_initiative="currentPlayerTurn"/>
       </div>
 
@@ -122,6 +127,8 @@ const currentDmId = ref<number>(0);
 const uncoverMode = ref<boolean>(false);
 const addWallsMode = ref<boolean>(false);
 const wallCells = ref<CellOfGrid[]>([]);
+const characters = ref<Character[]>([]);
+const fogOFWar = ref<boolean>(false);
 
 const firstUncoverClick = ref<CellOfGrid>();
 const secondUncoverClick = ref<CellOfGrid>();
@@ -130,7 +137,6 @@ const secondUncoverClick = ref<CellOfGrid>();
 const zoomLevel = ref<number>(1);
 
 //Character placement
-const characters = ref<Character[]>([]);
 const characterToMoveBool = ref<boolean>(false); 
 const cellToClear = ref<CellOfGrid | null>(null);
 
@@ -173,7 +179,8 @@ function createGrid(editorComponent: HTMLElement | null) {
       y: Math.floor(cellsOfGrid.value.length / numberOfColumns.value),
       visibility: false,
       classes: '',
-      character: null
+      character: null,
+      viewedBy: []
     });
   }
 }
@@ -183,7 +190,7 @@ function applyGradients(centerCell : CellOfGrid, radius : number, numRows : numb
   const affectedCellsIds = getCellsInRadius(centerCell.id, radius, numRows, numCols);
   const affectedCells = affectedCellsIds.map(id => cellsOfGrid[id]);
 
-  getDirectionClass(centerCell, affectedCells, radius, numberOfColumns.value, wallCells.value, currentUser.value?.id, currentDmId.value);
+  getDirectionClass(centerCell, affectedCells, radius, numberOfColumns.value, wallCells.value, currentUser.value?.id, currentDmId.value, fogOFWar.value);
 }
 
 // Toggle visibility of a cell
@@ -202,6 +209,8 @@ async function toggleCellVisibility(cell: CellOfGrid) {
     cell.classes = cell.classes+'bg-red-500/30';
     return;
   }
+
+  console.log('Uncover mode', uncoverMode.value);
 
   if (uncoverMode.value){
     if (firstUncoverClick.value === undefined){
@@ -261,18 +270,41 @@ async function toggleCellVisibility(cell: CellOfGrid) {
     return
   }
 
-  if (cell.character === null && characterToMoveBool.value && cellToClear.value !== null){
-    console.log('Character to move', cell.character);
-
+  if (cell.character === null && cellToClear.value !== null){
+    
     cell.character = cellToClear.value.character;
     cellToClear.value.character = null;
 
     characterToMoveBool.value = false;
   
+    console.log(cell.character)
+
     if (cell.character){
       cell.character.x = cell.x;
       cell.character.y = cell.y;
-      await callAxios(cell.character, 'characters/update');
+      console.log('Moving character to', cell);
+
+      const body = {
+        id: cell.character.id,
+        name: cell.character.name,
+        avatarUrl : cell.character.avatarUrl,
+        x: cell.x,
+        y: cell.y,
+        health: cell.character.health,
+        current_health: cell.character.current_health,
+        armour: cell.character.armour,
+        speed: cell.character.speed,
+        fov: cell.character.fov,
+        status: cell.character.status,
+        user_id: cell.character.user_id,
+        pivot_id: cell.character.pivot_id,
+        hidden: cell.character.hidden,
+        initiative: cell.character.initiative,
+        action: '',
+        last_cells: []
+      }
+
+      await callAxios(body, 'characters/update');
       const radius = cell.character.fov;
       applyGradients(cell, radius, numberOfRows.value, numberOfColumns.value, cellsOfGrid.value);
     }
@@ -310,6 +342,25 @@ async function changeWallsMode(){
     await callAxios(body, 'objects/createWalls');
   }
 
+}
+
+async function changeFoW(){
+  fogOFWar.value = !fogOFWar.value;
+
+  cellsOfGrid.value.forEach((cell) => {
+    if (currentDmId.value !== currentUser.value?.id){
+      cell.visibility = false;
+      cell.classes = '';
+    }
+  });
+
+  const body = {
+    campaign_id: campaign_id,
+    map_id: currentMapId.value,
+    fow: fogOFWar.value
+  }
+
+  await callAxios(body,'objects/fow');
 }
 
 function updateGridX(value: number) {

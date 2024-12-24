@@ -23,10 +23,11 @@ export function getCellsInRadius(cellId : number, radius :number, numRows : numb
   return cellsInRadius;
   }
 
-
   // Getting the direction of the cells
-  export function getDirectionClass(centerCell : CellOfGrid, allCells : CellOfGrid[], radius : number,  numCols : number, walls: CellOfGrid[], currentUserId: number | undefined, dmId: number) {
+  export function getDirectionClass(centerCell : CellOfGrid, allCells : CellOfGrid[], radius : number,  numCols : number, walls: CellOfGrid[], currentUserId: number | undefined, dmId: number, fow: boolean) {
     
+    const centerCharacter = centerCell.character;
+
     const upLeft = centerCell.id - numCols*radius - radius;
     const upRight = centerCell.id - numCols*radius + radius;
 
@@ -39,6 +40,31 @@ export function getCellsInRadius(cellId : number, radius :number, numRows : numb
     let wallsIds : number[] = [];
 
     let cellValueCounter : number = upLeft + numCols;
+
+    // Setting cells to the character
+
+    if(centerCharacter){
+        if (fow){
+            try{
+                centerCharacter.last_cells.forEach(cell => {
+                    if (cell.viewedBy.length < 2 && cell.viewedBy.length > 0){
+   
+                        cell.visibility = false;
+                        cell.viewedBy = cell.viewedBy.filter(viewer => viewer.id != centerCharacter.id);
+                        
+                        cell.classes = '';
+                        
+                    }
+
+                });
+            }catch(e)
+            {
+                console.log("Error: ", e);
+            }
+        }
+
+        centerCharacter.last_cells = allCells;
+    }
 
     while(cellValueCounter < downLeft-1){
         leftSizeIds.push(cellValueCounter);
@@ -57,7 +83,9 @@ export function getCellsInRadius(cellId : number, radius :number, numRows : numb
     const indexOfCentral = wallsOriginIds.indexOf(centerCell.id);
 
     if (indexOfCentral != -1){
-        centerCell.classes = 'bg-red-500/30';
+        if(currentUserId === dmId){
+            centerCell.classes = 'bg-red-500/30';
+        }
         return;
     }
 
@@ -118,6 +146,9 @@ export function getCellsInRadius(cellId : number, radius :number, numRows : numb
     });
 
     allCells.forEach(cell => {
+        if (centerCharacter){
+            cell.viewedBy.push(centerCharacter);
+        }
 
         const index = wallsOriginIds.indexOf(cell.id);
 
@@ -131,7 +162,8 @@ export function getCellsInRadius(cellId : number, radius :number, numRows : numb
             return;
         }
 
-        cell.classes = 'bg-dark/95'
+
+        cell.classes = ''
 
         let breakLoop = false;
         const direction = getDirection(centerCell, cell.id, numCols);

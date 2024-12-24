@@ -1,6 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import MapObject from '../models/map_object.js'
 import Map from '../models/map.js'
+import transmit from "@adonisjs/transmit/services/main"
 
 export default class MapObjectsController {
     async createNumerousWalls(ctx: HttpContext){
@@ -77,4 +78,28 @@ export default class MapObjectsController {
             return ctx.response.badRequest(e)
         }
     }
+
+    async informAboutFow(ctx: HttpContext){
+        const user = ctx.auth.user
+
+        const {map_id, campaign_id, fow} = ctx.request.all()
+
+        if(!user){
+            return ctx.response.badRequest({message: "User not found", status: 404})
+        }
+
+        try{
+
+            transmit.broadcast(`campaign:${campaign_id}:map:${map_id}`,{
+                fow: fow
+            })
+
+            console.log("Informed about fow, fow is: ", fow)
+
+        }catch(e){
+            console.log("Error informing about fow: " + e)
+            return ctx.response.badRequest(e)
+        }
+    }
+
 }
