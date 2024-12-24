@@ -9,9 +9,15 @@
         <img src="@/assets/imgs/reset.svg" @click="resetZoom" class="bg-gray-500 text-white w-fit p-2 rounded-full cursor-pointer">
         
         <label class="inline-flex items-center cursor-pointer">
-            <input type="checkbox" @click="changeUncoverMode()" class="sr-only peer">
+            <input v-model="uncoverMode" type="checkbox" @click="changeUncoverMode()" class="sr-only peer">
             <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4  rounded-full peer dark:bg-light_primary peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:border after:rounded-full after:h-5 after:w-5 after:transition-all  peer-checked:bg-primary"></div>
             <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300 text-left uppercase">Ucover mode</span>
+        </label>
+        
+        <label class="inline-flex items-center cursor-pointer">
+            <input v-model="addWallsMode" type="checkbox" @click="changeWallsMode()" class="sr-only peer">
+            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4  rounded-full peer dark:bg-light_primary peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:border after:rounded-full after:h-5 after:w-5 after:transition-all  peer-checked:bg-primary"></div>
+            <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300 text-left uppercase">Add Walls mode</span>
         </label>
 
         <ToolKitComponent :combat-init="combatInitiative" :campaign_id="campaign_id" :map_id="currentMapId" :current_initiative="currentPlayerTurn"/>
@@ -111,7 +117,11 @@ const forcedUpdateGrid = ref<number>(0);
 const currentUser = ref<User | null>(null);
 const currentCampaign = ref<number>(0);
 const currentDmId = ref<number>(0);
+
+// Cells modes
 const uncoverMode = ref<boolean>(false);
+const addWallsMode = ref<boolean>(false);
+const wallCells = ref<CellOfGrid[]>([]);
 
 const firstUncoverClick = ref<CellOfGrid>();
 const secondUncoverClick = ref<CellOfGrid>();
@@ -169,18 +179,30 @@ function createGrid(editorComponent: HTMLElement | null) {
 }
 
 function applyGradients(centerCell : CellOfGrid, radius : number, numRows : number, numCols : number, cellsOfGrid : CellOfGrid[]) {
+  
   const affectedCellsIds = getCellsInRadius(centerCell.id, radius, numRows, numCols);
   const affectedCells = affectedCellsIds.map(id => cellsOfGrid[id]);
 
-  getDirectionClass(centerCell, affectedCells, radius, numberOfColumns.value);
-
-  forcedUpdateGrid.value++;
-
-  console.log(affectedCells);
+  getDirectionClass(centerCell, affectedCells, radius, numberOfColumns.value, wallCells.value, currentUser.value?.id, currentDmId.value);
 }
 
 // Toggle visibility of a cell
 async function toggleCellVisibility(cell: CellOfGrid) {
+  if (addWallsMode.value){
+    const index = wallCells.value.findIndex((wallCell) => wallCell.id === cell.id)
+
+    if (index !== -1){
+      wallCells.value.splice(index, 1);
+      cell.classes = cell.classes.replace('bg-red-500/30', '');
+      return;
+    }
+
+    wallCells.value.push(cell);
+    
+    cell.classes = cell.classes+'bg-red-500/30';
+    return;
+  }
+
   if (uncoverMode.value){
     if (firstUncoverClick.value === undefined){
       firstUncoverClick.value = cell;
@@ -261,6 +283,33 @@ async function toggleCellVisibility(cell: CellOfGrid) {
 
 function changeUncoverMode(){
   uncoverMode.value = !uncoverMode.value;
+  addWallsMode.value = false;
+
+  if (uncoverMode.value){
+    firstUncoverClick.value = undefined;
+    secondUncoverClick.value = undefined;
+  }
+}
+
+async function changeWallsMode(){
+  addWallsMode.value = !addWallsMode.value;
+  uncoverMode.value = false;
+
+  if (addWallsMode.value){
+    firstUncoverClick.value = undefined;
+    secondUncoverClick.value = undefined;
+  }
+
+  if (addWallsMode.value === false && wallCells.value.length > 0){
+    const body = {
+      arrayOfObjects : wallCells.value,
+      campaign_id : campaign_id,
+      map_id : currentMapId.value
+    }
+
+    await callAxios(body, 'objects/createWalls');
+  }
+
 }
 
 function updateGridX(value: number) {
@@ -306,6 +355,25 @@ async function setMapId(map_id: number) {
   await subscribeToCurrentCharMovement();
   await subscribeToCombat();
   await subscribeToSounds();
+  await loadWalls();
+}
+
+async function loadWalls(){
+  const result = await callAxios({ campaign_id: campaign_id, map_id: currentMapId.value }, 'objects/listWalls');
+
+  if (result.status === 200){
+    const wallData = result.walls;
+    const wallCellIds = wallData.map((wall : any) => wall.size);
+    
+    wallCells.value = []
+
+    wallCellIds.forEach((cellId : number) => {
+      cellsOfGrid.value[cellId].classes = 'bg-red-500/30';
+      wallCells.value.push(cellsOfGrid.value[cellId]);
+    });
+
+  }
+
 }
 
 function setMaxResolution(url: string) {
@@ -541,6 +609,7 @@ onMounted(async () => {
 
   const editorComponent = document.getElementById('editorComponent');
   createGrid(editorComponent);
+  
 });
 
 onBeforeMount(async () => {
@@ -563,6 +632,11 @@ onBeforeMount(async () => {
 watch(() => numberOfColumns.value, (newValue) => {
   maxCellWidth.value = window.outerWidth / newValue - 5;
 });
+
+watch(() => wallCells.value, (newValue) => {
+
+});
+
 </script>
 
 <style scoped>

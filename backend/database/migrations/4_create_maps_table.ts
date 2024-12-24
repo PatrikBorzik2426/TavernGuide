@@ -55,6 +55,13 @@ export default class extends BaseSchema {
     this.schema.createTable('map_map_object', (table) => {
       table.increments('id') // Optional primary key for the pivot table
       table
+        .integer('campaign_id')
+        .unsigned()
+        .references('id')
+        .inTable('campaigns')
+        .onDelete('CASCADE')
+        .notNullable()
+      table
         .integer('map_id')
         .unsigned()
         .references('id')

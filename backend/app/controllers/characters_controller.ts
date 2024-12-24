@@ -331,25 +331,28 @@ export default class CharactersController {
 
         const character = await Character.findOrFail(character_id);
 
-        const charactersTemp = await user.related('characters').pivotQuery()
-            .where('map_id', map_id)
+        const charactersTemp = await map.related('characters').pivotQuery()
+            .where('user_id', user_id)
             .where('character_id', character_id)
+            .first()
+
+        console.log("Character assigned: " + JSON.stringify(charactersTemp));
 
         const charBody = {
             id: character_id,
             name: character.name,
             avatarUrl: character.avatarUrl,
-            x: charactersTemp[0].x,
-            y: charactersTemp[0].y,
-            health: charactersTemp[0].health,
-            current_health: charactersTemp[0].current_health,
-            armour: charactersTemp[0].armour,
-            speed: charactersTemp[0].speed,
-            fov: charactersTemp[0].fov,
-            status: charactersTemp[0].status,
+            x: charactersTemp.x,
+            y: charactersTemp.y,
+            health: charactersTemp.health,
+            current_health: charactersTemp.current_health,
+            armour: charactersTemp.armour,
+            speed: charactersTemp.speed,
+            fov: charactersTemp.fov,
+            status: charactersTemp.status,
             user_id: user_id,
-            pivot_id: charactersTemp[0].id,
-            hidden: charactersTemp[0].hidden
+            pivot_id: charactersTemp.id,
+            hidden: charactersTemp.hidden
         }
 
         transmit.broadcast(`campaign.${campaign_id}:map.${map_id}:characters`,{

@@ -95,6 +95,8 @@ import type { CombatInit } from '~/models/CombatInit';
   const maxGridHeight = ref<number>();
   const forcedUpdateGrid = ref<number>(0);
 
+  const wallCells = ref<CellOfGrid[]>([]);
+
   // Functionality constants
   const currentUser = ref<User | null>(null);
   const currentCampaign = ref<number>(0);
@@ -165,7 +167,7 @@ import type { CombatInit } from '~/models/CombatInit';
     const affectedCellsIds = getCellsInRadius(centerCell.id, radius, numRows, numCols);
     const affectedCells = affectedCellsIds.map(id => cellsOfGrid[id]);
   
-    getDirectionClass(centerCell, affectedCells, radius, numberOfColumns.value);
+    getDirectionClass(centerCell, affectedCells, radius, numberOfColumns.value, wallCells.value, currentUser.value?.id, currentDmId.value);
 
     forcedUpdateGrid.value++;
 
@@ -253,7 +255,26 @@ import type { CombatInit } from '~/models/CombatInit';
     await subscribeToReveal();
     await subscribeToCombat();
     await subscribeToSounds();
+    await loadWalls();
   }
+
+  async function loadWalls(){
+  const result = await callAxios({ campaign_id: campaign_id, map_id: currentMapId.value }, 'objects/listWalls');
+
+  if (result.status === 200){
+    const wallData = result.walls;
+    const wallCellIds = wallData.map((wall : any) => wall.size);
+    
+    wallCells.value = []
+
+    wallCellIds.forEach((cellId : number) => {
+      cellsOfGrid.value[cellId].classes = 'bg-red-500/30';
+      wallCells.value.push(cellsOfGrid.value[cellId]);
+    });
+
+  }
+
+}
 
   function setMaxResolution(url: string) {
     gridBackgroundUrl.value = url;

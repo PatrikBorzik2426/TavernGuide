@@ -25,10 +25,7 @@ export function getCellsInRadius(cellId : number, radius :number, numRows : numb
 
 
   // Getting the direction of the cells
-  export function getDirectionClass(centerCell : CellOfGrid, allCells : CellOfGrid[], radius : number,  numCols : number) {
-    const size = 2*radius+1;
-
-    console.log("Number of cols: " + numCols);
+  export function getDirectionClass(centerCell : CellOfGrid, allCells : CellOfGrid[], radius : number,  numCols : number, walls: CellOfGrid[], currentUserId: number | undefined, dmId: number) {
     
     const upLeft = centerCell.id - numCols*radius - radius;
     const upRight = centerCell.id - numCols*radius + radius;
@@ -38,7 +35,8 @@ export function getCellsInRadius(cellId : number, radius :number, numRows : numb
 
     const leftSizeIds : number[] = [];
     const rightSizeIds : number[] = [];
-    const cellsInRadius = getCellsInRadius(centerCell.id, radius-1, size, numCols);
+
+    let wallsIds : number[] = [];
 
     let cellValueCounter : number = upLeft + numCols;
 
@@ -48,21 +46,156 @@ export function getCellsInRadius(cellId : number, radius :number, numRows : numb
         cellValueCounter += numCols;
     }
 
-    console.log("centerCell: " + centerCell.id);
-    console.log("upLeft: " + upLeft);
-    console.log("upRight: " + upRight);
-    console.log("downLeft: " + downLeft);
-    console.log("downRight: " + downRight);
+    // Filter only walls ids that are in the allCells
+    const wallsInRadius = walls.filter(wall => allCells.some(cell => cell.id == wall.id));
+    // Sort by id
+    wallsInRadius.sort((a, b) => a.id - b.id);
+    wallsIds = wallsInRadius.map(wall => wall.id);
 
-    console.log("leftSizeIds: " + leftSizeIds);
-    console.log("rightSizeIds: " + rightSizeIds);
+    const wallsOriginIds = walls.map(wall => wall.id); 
+
+    const indexOfCentral = wallsOriginIds.indexOf(centerCell.id);
+
+    if (indexOfCentral != -1){
+        centerCell.classes = 'bg-red-500/30';
+        return;
+    }
+
+
+    if(centerCell.id in wallsOriginIds){
+        return;
+    }
+
+    let wallMaxTop : CellOfGrid | null = null
+    let wallMaxBottom : CellOfGrid | null = null
+    let wallMaxLeft : CellOfGrid | null = null
+    let wallMaxRight : CellOfGrid | null = null
+
+    let wallMaxLeftTop : CellOfGrid[] = []
+    let wallMaxRightTop : CellOfGrid[] = []
+    let wallMaxLeftBottom : CellOfGrid[] = [] 
+    let wallMaxRightBottom : CellOfGrid[] = [] 
+    wallsInRadius.forEach(wall => {
+
+        const direction = getDirection(centerCell, wall.id, numCols);
+        console.log("Direction: ", direction);
+
+        switch(direction){
+            case "up":
+                if(!wallMaxTop || wallMaxTop.id < wall.id){
+                    wallMaxTop = wall;
+                }
+                break;
+            case "down":
+                if(!wallMaxBottom || wallMaxBottom.id > wall.id){
+                    wallMaxBottom = wall;
+                }
+                break;
+            case "left":
+                if(!wallMaxLeft || wallMaxLeft.id < wall.id){
+                    wallMaxLeft = wall;
+                }
+                break;
+            case "right":
+                if(!wallMaxRight || wallMaxRight.id > wall.id){
+                    wallMaxRight = wall;
+                }
+                break;
+            case "up-left":
+                // Add the object of CellInGrid from WallsInRadius
+                wallMaxLeftTop.push(wall);
+                break;
+            case "up-right":
+                wallMaxRightTop?.push(wall);
+                break;
+            case "down-left":
+                wallMaxLeftBottom?.push(wall);
+                break;
+            case "down-right":
+                wallMaxRightBottom?.push(wall);
+                break;
+        }
+    });
 
     allCells.forEach(cell => {
+
+        const index = wallsOriginIds.indexOf(cell.id);
+
+        if(index != -1 && currentUserId === dmId){
+            cell.classes = 'bg-red-500/30';
+            return;
+        }
+
         if(cell.visibility){
             cell.classes = 'transparent-cell';
             return;
         }
 
+        cell.classes = 'bg-dark/95'
+
+        let breakLoop = false;
+        const direction = getDirection(centerCell, cell.id, numCols);
+
+        switch(direction){
+            case "up":
+                if (wallMaxTop && cell.id < wallMaxTop.id){
+                    return;
+                }
+                break;
+            case "down":
+                if (wallMaxBottom && cell.id > wallMaxBottom.id){
+                    return;
+                }
+                break;
+            case "left":
+                if (wallMaxLeft && cell.id < wallMaxLeft.id){
+                    return;
+                }
+                break;
+            case "right":
+                if (wallMaxRight && cell.id > wallMaxRight.id){
+                    return;
+                }
+                break;
+            case "up-left":
+                wallMaxLeftTop.forEach(wall => {
+                    console.log("Wall x: ", wall.x, "Wall y: ", wall.y, "Cell x: ", cell.x, "Cell y: ", cell.y);
+                    if((cell.x < wall.x && cell.y < wall.y) || (cell.x == wall.x && cell.y < wall.y) || (cell.x < wall.x && cell.y == wall.y) && !(cell.id in wallsOriginIds)){
+                        breakLoop = true;
+                        return;
+                    }
+                })
+                break;
+            case "up-right":
+                wallMaxRightTop.forEach(wall => {
+                    if((cell.x > wall.x && cell.y < wall.y) || (cell.x == wall.x && cell.y < wall.y) || (cell.x > wall.x && cell.y == wall.y) && !(cell.id in wallsOriginIds)){
+                        breakLoop = true;
+                        return;
+                    }
+                })
+                break;
+            case "down-left":
+                wallMaxLeftBottom.forEach(wall => {
+                    if((cell.x < wall.x && cell.y > wall.y) || (cell.x == wall.x && cell.y > wall.y) || (cell.x < wall.x && cell.y == wall.y) && !(cell.id in wallsOriginIds)){
+                        breakLoop = true;
+                        return;
+                    }
+                })
+                break;
+            case "down-right":
+                wallMaxRightBottom.forEach(wall => {
+                    if((cell.x > wall.x && cell.y > wall.y) || (cell.x == wall.x && cell.y > wall.y) || (cell.x > wall.x && cell.y == wall.y) && !(cell.id in wallsOriginIds)){
+                        breakLoop = true;
+                        return;
+                    }
+                })
+                break;
+        }
+
+        if (breakLoop){
+            return;
+        }
+        
         if(cell.id == upLeft){
             cell.classes = 'gradient-radial-to-br ';
         }else if(cell.id == upRight){
@@ -79,12 +212,41 @@ export function getCellsInRadius(cellId : number, radius :number, numRows : numb
             cell.classes = 'gradient-to-r ';
         }else if(rightSizeIds.includes(cell.id)){
             cell.classes = 'gradient-to-l ';
-        }else{
+        }else {
             cell.classes = 'transparent-cell';
         }
 
         cell.visibility = true;
     });
+
+  }
+
+  function getDirection(centerCell : CellOfGrid, cellToCompare : number, numCols:number) : string {
+    const centerRow = Math.floor(centerCell.id / numCols);
+    const centerCol = centerCell.id % numCols;
+
+    const row = Math.floor(cellToCompare / numCols);
+    const col = cellToCompare % numCols;
+
+    if(row < centerRow && col == centerCol){
+        return "up";
+    }else if(row > centerRow && col == centerCol){
+        return "down";
+    }else if(row == centerRow && col < centerCol){
+        return "left";
+    }else if(row == centerRow && col > centerCol){
+        return "right";
+    }else if(row < centerRow && col < centerCol){
+        return "up-left";
+    }else if(row < centerRow && col > centerCol){
+        return "up-right";
+    }else if(row > centerRow && col < centerCol){
+        return "down-left";
+    }else if(row > centerRow && col > centerCol){
+        return "down-right";
+    }
+
+    return "";
 
   }
   

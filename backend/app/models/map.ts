@@ -43,9 +43,18 @@ export default class Map extends BaseModel {
     pivotTable: 'map_map_object',
     pivotForeignKey: 'map_id',
     pivotRelatedForeignKey: 'map_object_id',
-    pivotColumns: ['map_id','map_object_id','x','y','size','hidden'],
+    pivotColumns: ['campaign_id','map_object_id','map_id','x','y','size','hidden'],
     pivotTimestamps: true
   })
   declare map_objects: ManyToMany<typeof MapObject>
+
+  @manyToMany(() => Campaign,{
+    pivotTable: 'map_map_object',
+    pivotForeignKey: 'map_id',
+    pivotRelatedForeignKey: 'campaign_id',
+    pivotColumns: ['campaign_id','map_object_id','map_id','x','y','size','hidden'],
+    pivotTimestamps: true
+  })
+  declare campaigns2: ManyToMany<typeof Campaign>
   
 }

@@ -21,6 +21,7 @@ const MapsController = () => import('#controllers/maps_controller')
 const CharactersController = () => import('#controllers/characters_controller')
 const CombatsController = () => import('#controllers/combats_controller')
 const SoundsController = () => import('#controllers/sounds_controller')
+const ObjectsController = () => import('#controllers/map_objects_controller')
 
 const PATH_TRAVERSAL_REGEX = /(?:^|[\\/])\.\.(?:[\\/]|$)/
 
@@ -109,3 +110,8 @@ router.group(()=>{
   router.post('/stop',[SoundsController,'stopSound']).use(middleware.auth()),
   router.post('/delete',[SoundsController,'delete']).use(middleware.auth())
 }).prefix('sounds')
+
+router.group(()=>{
+  router.post('/createWalls',[ObjectsController,'createNumerousWalls']).use(middleware.auth()),
+  router.post('/listWalls',[ObjectsController,'listWalls']).use(middleware.auth())
+}).prefix('objects')
