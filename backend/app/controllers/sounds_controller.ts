@@ -8,6 +8,7 @@ export default class SoundsController {
     async upload(ctx: HttpContext) {
 
         const fileName = ctx.request.all()['file_name']
+        const effect = ctx.request.all()['is_effect']
 
         console.log("Uploading sound", fileName)
 
@@ -26,6 +27,12 @@ export default class SoundsController {
 
             newSound.name = fileName
             newSound.url = `storage/sounds/${fileName}`
+
+            if (effect === '1'){
+                newSound.effect = true
+            }else{
+                newSound.effect = false
+            }
 
             await newSound.save()
 
@@ -55,7 +62,7 @@ export default class SoundsController {
     async list(ctx: HttpContext) {
         
         const sounds = await Sound.query()
-        .select('name','url')
+        .select('name','url','effect')
 
         console.log("Sounds", sounds.length)
 
@@ -73,7 +80,8 @@ export default class SoundsController {
 
             transmit.broadcast(`playSound:map_${map_id}`,{
                 action: 'play',
-                sound_url: sound.url
+                sound_url: sound.url,
+                effect: sound.effect
             })
         }
     }

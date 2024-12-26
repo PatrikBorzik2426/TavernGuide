@@ -11,6 +11,9 @@ export default class Sound extends BaseModel {
   @column()
   declare url: string
 
+  @column()
+  declare effect: boolean
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 

@@ -67,7 +67,6 @@
 import { ref, defineProps, onBeforeMount } from 'vue';
 import type { User } from '@/models/User.js';
 import type { Campaign } from '@/models/Campaign.js';
-import { Transmit } from '@adonisjs/transmit-client';
 import { callAxios } from '~/services/axios';
 import { useRouter } from 'vue-router';
 
@@ -81,10 +80,6 @@ const props = defineProps({
 });
 
 const router = useRouter();
-
-const transmit = new Transmit({
-    baseUrl: 'http://localhost:3333'
-})
 
 // Form data
 const nameInput = ref<string>('');
@@ -150,7 +145,9 @@ async function createCampaign(){
 }
 
 async function fetchCampaigns(){
+    console.log("Before fetch campaigns");
     const result = await callAxios({}, 'campaigns/list')
+    console.log("After fetch campaigns");
 
     console.log(result);
 
@@ -261,6 +258,7 @@ function openCampaign(index: number){
 }
 
 onBeforeMount(async () => {
+    console.log("Before fetch campaigns");
     await fetchCampaigns();
 })
 

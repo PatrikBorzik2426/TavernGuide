@@ -35,25 +35,30 @@
 
     <div class="relative">
         <img @click="showSoundsBar()" src="@/assets/imgs/radio.svg" class=" bg-primary text-white w-fit p-2 rounded-full cursor-pointer">
-        <div v-if="showSounds" class=" w-fit h-fit bg-primary absolute top-[120%] right-[70%] z-[100] p-2 rounded-md overflow-hide">
-            <div class=" flex justify-between w-72 mb-4">
-                <input @change="loadSound" name="sound" type="file" accept=".mp3,.wav,.ogg" class=" w-56 overflow-y-hidden">
+        <div v-if="showSounds" class=" w-fit h-fit bg-primary absolute top-[0%] right-[110%] z-[100] p-2 rounded-md overflow-hide">
+            <div class=" flex flex-col gap-2 justify-between w-72 mb-4">
+                <input @change="loadSound" name="sound" type="file" accept=".mp3,.wav,.ogg" class=" w-56 overflow-y-hidden text-white">
                 <div class=" flex gap-1">
                     <img @click="uploadSound" src="@/assets/imgs/plus_primary.svg" class="bg-white text-primary font-medium p-1 rounded-full w-8 cursor-pointer hover:animate-pulse">
                     <img @click="stopSound" src="@/assets/imgs/stop_primary.svg" class="bg-white text-primary font-medium p-1 rounded-full w-8 cursor-pointer hover:animate-pulse">
+                    <label class="inline-flex items-center cursor-pointer">
+                        <input v-model="soundIsEffect" type="checkbox" @click="changeIsEffect()" class="sr-only peer">
+                        <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4  rounded-full peer dark:bg-light_primary peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:border after:rounded-full after:h-5 after:w-5 after:transition-all  peer-checked:bg-gray-950"></div>
+                        <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300 text-left uppercase">Sound Effect?</span>
+                    </label>
+        
                 </div>
             </div>
             
-            <ul class="flex flex-col gap-2 max-h-44 overflow-auto scrollbar-thin ">
+            <ul class="flex flex-col gap-2 max-h-28 overflow-y-scroll overflow-x-hidden scrollbar-thin ">
                 <li v-for="(sound,index) in sounds" :key="index" >
-                    <div class="flex justify-between gap-1 items-center border-white border-2 p-1 rounded-md">
-                        <p class="text-white">{{ sound.name }}</p>
+                    <div v-if="checkToDisplaySound(sound)" class="flex justify-between gap-1 items-center border-white border-2 p-1 rounded-md">
+                        <p class="text-white max-w-[70%]">{{ sound.name }}</p>
                         <div class="flex gap-1">
                             <img @click="playSound(sound)" src="@/assets/imgs/play.svg" class="bg-white text-primary font-medium p-1 rounded-full w-8 cursor-pointer hover:animate-pulse">
                             <img @click="deleteSound(sound)" src="@/assets/imgs/delete.svg" class="bg-white text-primary font-medium p-1 rounded-full w-8 cursor-pointer hover:animate-pulse">
                         </div>
                     </div>
-                    
                 </li>
             </ul>
         </div>
@@ -79,7 +84,6 @@ const props = defineProps<{
 }>();
 
 const lastRoll = ref<number>(0);
-const backendUrl = 'http://localhost:3333/';
 
 // Display constants
 const showDiceRolls = ref<boolean>(false);
@@ -90,6 +94,7 @@ const currentInitiativeTurn = ref<number>(0);
 // Form constants
 const newSoundFile = ref<File | null>(null);
 const sounds = ref<Sound[]>([]);
+const soundIsEffect = ref<boolean>(false);
 
 function showDiceSet () {
     showDiceRolls.value = !showDiceRolls.value;
@@ -103,6 +108,10 @@ function showSoundsBar () {
     showSounds.value = !showSounds.value;
 }
 
+function changeIsEffect() {
+    soundIsEffect.value = !soundIsEffect.value;
+}
+
 function clearInitiative() {
     const body = {
         campaign_id: props.campaign_id,
@@ -110,6 +119,22 @@ function clearInitiative() {
     }
 
     callAxios(body,'combats/end')
+}
+
+function checkToDisplaySound(sound : Sound){
+    if (soundIsEffect.value){
+        if(sound.effect){
+            return true;
+        }else{
+            false
+        }
+    }else{
+        if(!sound.effect){
+            return true;
+        }else{
+            false
+        }
+    }
 }
 
 function rollDice (sides: number) {
@@ -160,6 +185,7 @@ async function uploadSound() {
 
         formData.append('sound', newSoundFile.value);
         formData.append('file_name', newSoundFile.value.name);
+        formData.append('is_effect', soundIsEffect.value ? '1' : '0');
         
         const response = await axios.post('http://localhost:3333/sounds/upload', formData, {
             headers: {

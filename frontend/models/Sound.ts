@@ -1,4 +1,5 @@
 export interface Sound {
     name: string,
-    url: string
+    url: string,
+    effect: boolean
 }

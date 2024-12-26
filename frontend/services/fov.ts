@@ -27,6 +27,7 @@ export function getCellsInRadius(cellId : number, radius :number, numRows : numb
   export function getDirectionClass(centerCell : CellOfGrid, allCells : CellOfGrid[], radius : number,  numCols : number, walls: CellOfGrid[], currentUserId: number | undefined, dmId: number, fow: boolean) {
     
     const centerCharacter = centerCell.character;
+    const wallsOriginIds = walls.map(wall => wall.id);
 
     const upLeft = centerCell.id - numCols*radius - radius;
     const upRight = centerCell.id - numCols*radius + radius;
@@ -48,11 +49,18 @@ export function getCellsInRadius(cellId : number, radius :number, numRows : numb
             try{
                 centerCharacter.last_cells.forEach(cell => {
                     if (cell.viewedBy.length < 2 && cell.viewedBy.length > 0){
-   
+                        
+                        const indexInWalls = wallsOriginIds.indexOf(cell.id);
+
+                        if (indexInWalls != -1 && currentUserId === dmId){
+                            cell.classes = 'bg-red-500/30';
+                        }else{
+                            cell.classes = '';
+                        }
+
                         cell.visibility = false;
                         cell.viewedBy = cell.viewedBy.filter(viewer => viewer.id != centerCharacter.id);
                         
-                        cell.classes = '';
                         
                     }
 
@@ -78,7 +86,6 @@ export function getCellsInRadius(cellId : number, radius :number, numRows : numb
     wallsInRadius.sort((a, b) => a.id - b.id);
     wallsIds = wallsInRadius.map(wall => wall.id);
 
-    const wallsOriginIds = walls.map(wall => wall.id); 
 
     const indexOfCentral = wallsOriginIds.indexOf(centerCell.id);
 
@@ -228,25 +235,27 @@ export function getCellsInRadius(cellId : number, radius :number, numRows : numb
             return;
         }
         
-        if(cell.id == upLeft){
-            cell.classes = 'gradient-radial-to-br ';
-        }else if(cell.id == upRight){
-            cell.classes = 'gradient-radial-to-bl ';
-        }else if(cell.id == downLeft){
-            cell.classes = 'gradient-radial-to-tr ';
-        }else if(cell.id == downRight){
-            cell.classes = 'gradient-radial-to-tl ';
-        }else if(cell.id > upLeft && cell.id < upRight){
-            cell.classes = 'gradient-to-b ';
-        }else if(cell.id > downLeft && cell.id < downRight){
-            cell.classes = 'gradient-to-t ';
-        }else if(leftSizeIds.includes(cell.id)){
-            cell.classes = 'gradient-to-r ';
-        }else if(rightSizeIds.includes(cell.id)){
-            cell.classes = 'gradient-to-l ';
-        }else {
-            cell.classes = 'transparent-cell';
-        }
+        // if(cell.id == upLeft){
+        //     cell.classes = 'gradient-radial-to-br ';
+        // }else if(cell.id == upRight){
+        //     cell.classes = 'gradient-radial-to-bl ';
+        // }else if(cell.id == downLeft){
+        //     cell.classes = 'gradient-radial-to-tr ';
+        // }else if(cell.id == downRight){
+        //     cell.classes = 'gradient-radial-to-tl ';
+        // }else if(cell.id > upLeft && cell.id < upRight){
+        //     cell.classes = 'gradient-to-b ';
+        // }else if(cell.id > downLeft && cell.id < downRight){
+        //     cell.classes = 'gradient-to-t ';
+        // }else if(leftSizeIds.includes(cell.id)){
+        //     cell.classes = 'gradient-to-r ';
+        // }else if(rightSizeIds.includes(cell.id)){
+        //     cell.classes = 'gradient-to-l ';
+        // }else {
+        //     cell.classes = 'transparent-cell';
+        // }
+
+        cell.classes = 'transparent-cell';
 
         cell.visibility = true;
     });

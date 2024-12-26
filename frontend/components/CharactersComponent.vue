@@ -45,7 +45,7 @@
                 </div>
                 <div class="flex flex-col">
                     <label for="avatar" class="">Character Avatar:</label>
-                    <input @change="loadImage" name="avatar" type="file" accept=".jpg,.png" class="">
+                    <input @change="loadImage" name="avatar" type="file" accept=".jpg,.png,.jpeg" class="">
                 </div>
                 <div class="flex justify-between px-1 py-2">
                     <label class="inline-flex items-center cursor-pointer">
@@ -115,7 +115,7 @@
                                     <img @click="deleteCharacter(character.pivot_id, true)" :src="deleteIcon" class=" w-8 h-8 p-1 bg-white rounded-full hover:animate-pulse hover:animate-infinite cursor-pointer">
                                 </div>
                             </div>
-                            <p class=" text-white font-bold absolute top-[0%] left-[95%]">{{ character.pivot_id }}</p>
+                            <p class=" text-white font-bold absolute top-[0%] left-[5%]">{{ character.pivot_id }}</p>
                         </div>
                     </div>
                 </div>

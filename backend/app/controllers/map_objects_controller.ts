@@ -9,11 +9,12 @@ export default class MapObjectsController {
 
         const {arrayOfObjects, map_id, campaign_id} = ctx.request.all()
 
-        console.log("Array of objects: ", arrayOfObjects)
+        console.log("Wall data received: ", arrayOfObjects, map_id, campaign_id)
 
         if(!user){
             return ctx.response.badRequest({message: "User not found", status: 404})
         }
+
         
         try{
             const map = await Map.findOrFail(map_id)
@@ -24,24 +25,29 @@ export default class MapObjectsController {
             // DElete all walls from the map
 
             await mapObjectWall.related('maps')
-            .query()
+            .pivotQuery()
             .where('map_id', map_id)
             .delete()
+           
+            console.log("Map object wall: ", mapObjectWall.id)
 
             arrayOfObjects.forEach(async (element : any) => {
-                await mapObjectWall.related('maps').attach({
-                    [map_id]: {
+                await map.related('map_objects').attach({
+                    [mapObjectWall.id]: {
                         campaign_id: campaign_id,
                         x: element.x,
                         y: element.y,
                         size: element.id
-                        }
-                    })
-                });
+                    }
+                })
+            })
 
-
-                const newMapObject = await mapObjectWall.related('maps').query().where('map_id', map.id)
-                return ctx.response.ok({newMapObject, status: 200})
+            
+            const newMapObject = await mapObjectWall.related('maps')
+            .pivotQuery()
+            .where('map_id', map.id)
+            
+            return ctx.response.ok({newMapObject, status: 200})
             }
 
         }catch(e){

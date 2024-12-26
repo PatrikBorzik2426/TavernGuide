@@ -1,25 +1,20 @@
-/*
-|--------------------------------------------------------------------------
-| HTTP server entrypoint
-|--------------------------------------------------------------------------
-|
-| The "server.ts" file is the entrypoint for starting the AdonisJS HTTP
-| server. Either you can run this file directly or use the "serve"
-| command to run this file and monitor file changes
-|
-*/
-
 import 'reflect-metadata'
 import { Ignitor, prettyPrintError } from '@adonisjs/core'
+import { createServer } from 'https'
+import fs from 'fs'
 
 /**
- * URL to the application root. AdonisJS need it to resolve
+ * URL to the application root. AdonisJS needs it to resolve
  * paths to file and directories for scaffolding commands
  */
 const APP_ROOT = new URL('../', import.meta.url)
 
+const certOptions = {
+  key: fs.readFileSync('G:/Projekty/Tavern_Guide/TavernGuide/backend/cert.key'),
+  cert: fs.readFileSync('G:/Projekty/Tavern_Guide/TavernGuide/backend/cert.crt')
+}
 /**
- * The importer is used to import files in context of the
+ * The importer is used to import files in the context of the
  * application.
  */
 const IMPORTER = (filePath: string) => {
@@ -38,8 +33,11 @@ new Ignitor(APP_ROOT, { importer: IMPORTER })
     app.listenIf(app.managedByPm2, 'SIGINT', () => app.terminate())
   })
   .httpServer()
-  .start()
+  .start((handle) => {
+    return createServer(certOptions, handle)
+  })
   .catch((error) => {
     process.exitCode = 1
     prettyPrintError(error)
   })
+

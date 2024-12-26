@@ -24,7 +24,9 @@ export default class CharactersController {
         console.log("All data: " + name + " " + health + " " + armour + " " + speed + " " + fov + " " + map_id + " " + info_url);
         console.log("File: " + avatar?.clientName);
 
-        const avatarName = `${cuid()}.png`; // Ensure the final output is PNG
+        const receivedFormat = 'png';
+
+        const avatarName = `${cuid()}.${receivedFormat}`; // Added a dot before format
         const avatarPath = app.makePath('storage/characters');
         const avatarUrl = `${avatarPath}/${avatarName}`;
 
@@ -36,7 +38,13 @@ export default class CharactersController {
 
             // Create a temporary output path for the cropped image
             const tempOutputPath = `${avatarPath}/temp_${avatarName}`;
-
+            
+            try{
+                await fs.unlink(tempOutputPath);
+            }catch(e){
+                console.log("No file to delete");
+            }
+            
             // Create a circular cropped image
             const circleMask = Buffer.from(
                 `<svg width="300" height="300" xmlns="http://www.w3.org/2000/svg">
@@ -105,6 +113,8 @@ export default class CharactersController {
                     });
             }
 
+            await this.deleteUnusedCharacters()
+
             return ctx.response.ok({ message: 'File uploaded and cropped', status: 200 });
         } catch (e) {
             console.error(e);
@@ -121,28 +131,51 @@ export default class CharactersController {
         const npcs = ctx.request.input('npcs');
 
         const map = await Map.findOrFail(map_id);
+        const campaign = await map.related('campaigns').query().first();
+        const allMapsIds = (await campaign?.related('maps').pivotQuery().select('map_id'))?.map((map) => map.map_id);
 
         if (!user) {
             return ctx.response.unauthorized({ message: 'Unauthorized', status: 401 });
         }
 
-        console.log("Map ID: " + map_id);
-        let charactersTemp : any;
+        console.log("Map IDs: " + allMapsIds);
+        let charactersTemp : any[] = [];
 
-        if(npcs){
-            
-            charactersTemp = await map.related('characters').pivotQuery()
-            .where('map_id', map_id)
-            .whereLike('status', '%npc%');
+        if(npcs && allMapsIds){
+            for (const mapId of allMapsIds) {
+                const map = await Map.findOrFail(mapId);
+                
+                const data = await map.related('characters').pivotQuery()
+                .whereIn('map_id', allMapsIds)
+                .whereLike('status', '%npc%')
+                .orderBy('updated_at', 'desc');
 
-        }else{
+                data.forEach((element) => {
+                    charactersTemp.push(element);
+                });
+            }
+
+        }else if(allMapsIds){
             // List the pivot tables for characters and maps based on the user
-            charactersTemp = await map.related('characters').pivotQuery()
-            .where('map_id', map_id)
-            .whereRaw("status NOT LIKE ?", ['%npc%']);
+            for (const mapId of allMapsIds) {
+                const map = await Map.findOrFail(mapId);
+
+                const data = await map.related('characters').pivotQuery()
+                .whereIn('map_id', allMapsIds)
+                .whereRaw("status NOT LIKE ?", ['%npc%'])
+                .orderBy('updated_at', 'desc');
+
+                data.forEach((element) => {
+                    charactersTemp.push(element);
+                });
+            }
         }
 
         let characters : Object[] = []
+        // Order character Temp by updated_at
+        charactersTemp.sort((a, b) => {
+            return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+        });
 
         for (const character of charactersTemp) {
             const characterTemp = await Character.find(character.character_id);
@@ -357,5 +390,17 @@ export default class CharactersController {
         console.log("Broadcasted to campaign." + campaign_id + ":map." + map_id + ":characters" + "Character" + JSON.stringify(charBody));
 
         return ctx.response.ok({ message: 'User assigned to character', status: 200 });
+    }
+
+    async deleteUnusedCharacters (){
+        const characters = await Character.all();
+
+        for (const character of characters) {
+            const maps = await character.related('maps').pivotQuery();
+
+            if (maps.length === 0) {
+                await character.delete();
+            }
+        }     
     }
 }

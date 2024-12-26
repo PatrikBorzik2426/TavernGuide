@@ -17,6 +17,7 @@
 - [ ] Vyhodenie hráča
 - [x] Hody kockou
 - [ ] Poznámkový blok
+- [ ] Pridať hranie audio effektov zároveň s hudbou v pozadí
   
 #### Color Pallet
 - #1F1F1F

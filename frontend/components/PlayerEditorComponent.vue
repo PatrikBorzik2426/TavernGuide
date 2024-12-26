@@ -40,6 +40,7 @@
         </div>
        </div>
        <audio ref="soundPlayer" class=" hidden "></audio>
+       <audio ref="effectPlayer" class=" hidden "></audio>
     </div>
   </template>
   
@@ -60,12 +61,16 @@ import type { CombatInit } from '~/models/CombatInit';
   const campaign_id = <number>router.currentRoute.value.query.campaign_id?.valueOf();
   const currentMapId = ref<number>(0);
   
+  const apiBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'https://localhost:3333'  // For local access
+  : 'https://192.168.1.177:3333'  // For external devices
+
   // Transmit setup
   const transmit = new Transmit({
-    baseUrl: 'http://127.0.0.1:3333',
+    baseUrl: apiBaseUrl,
   });
 
-  const backendUrl = 'http://127.0.0.1:3333/';
+  const backendUrl = apiBaseUrl + '/';
 
   // Subscriptions
   let unsubscribeActiveMap = ref<Function>();
@@ -87,6 +92,7 @@ import type { CombatInit } from '~/models/CombatInit';
 
   // Sounds
   const soundPlayer = ref<HTMLAudioElement | null>(null);
+  const effectPlayer = ref<HTMLAudioElement | null>(null);
   
   // Grid constants
   const cellsOfGrid = ref<CellOfGrid[]>([]);
@@ -590,18 +596,34 @@ import type { CombatInit } from '~/models/CombatInit';
     unsubscribeSounds.value = activeSubscribeSounds.onMessage((message : any) => {
       const soundUrl = message.sound_url;
       const action = message.action;
+      const effect = message.effect;
+
+      console.log('Received sound message', JSON.stringify(message));
 
       if (action === 'stop'){
         if (soundPlayer.value){
           soundPlayer.value.pause();
           soundPlayer.value.currentTime = 0;
         }
+        if(effectPlayer.value){
+          effectPlayer.value.pause();
+          effectPlayer.value.currentTime = 0;
+        }
       }
       
       if (action === 'play'){
-        if (soundPlayer.value){
-          soundPlayer.value.src = backendUrl + soundUrl;
-          soundPlayer.value.play();
+        if (effect){
+          if (effectPlayer.value){
+            effectPlayer.value.src = backendUrl + soundUrl;
+            effectPlayer.value.loop = false;
+            effectPlayer.value.play();
+          }
+        }else{
+          if (soundPlayer.value){
+            soundPlayer.value.src = backendUrl + soundUrl;
+            soundPlayer.value.loop = true;
+            soundPlayer.value.play();
+          }
         }
       }
 

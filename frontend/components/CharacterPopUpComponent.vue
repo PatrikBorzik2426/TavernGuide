@@ -41,7 +41,7 @@
             </div>
         </div>
         <div class="absolute top-[100%] left-[0%] w-full">
-            <p v-if="currentUser?.id === currentDmId" class=" text-white p-1 font-bold bg-dark text-center rounded-full absolute bottom-[100%]">{{ currentCharacter?.pivot_id }}</p>
+            <p v-if="currentUser?.id === currentDmId" class=" text-white p-1 font-bold bg-dark text-[10px] text-center rounded-full absolute bottom-[100%]">{{ currentCharacter?.pivot_id }}</p>
             <p class="uppercase font-medium bg-light_primary/70  text-white text-sm text-center rounded-full">{{ currentCharacter?.name }}</p>
             <div class=" w-full h-2 bg-red-200 rounded-full">
                 <div class="max-w-full h-full bg-red-500 rounded-full" :style="{ width: (characterCurrentHealth / characterHealth) * 100 + '%' }"></div>

@@ -49,7 +49,7 @@
         <div
           v-for="cell in cellsOfGrid"
           :key="cell.id + forcedUpdateGrid"
-          :class="`w-full aspect-square border-[1px] bg-dark/95  border-red-500/50 relative ${cell.classes}`"
+          :class="`w-full aspect-square border-[1px] bg-dark/75  border-red-500/50 relative ${cell.classes}`"
           @click="toggleCellVisibility(cell)"
           :style="{
               '--tw-gradient-from': '#1F1F1F',
@@ -63,6 +63,8 @@
       <!-- <SoundBarComponent />
       <ObjectBarComponent /> -->
       <audio ref="soundPlayer" class="hidden"></audio>
+      <audio ref="effectPlayer" class="hidden"></audio>
+      
     </div>
   </div>
 </template>
@@ -83,12 +85,16 @@ const router = useRouter();
 const campaign_id = <number>router.currentRoute.value.query.campaign_id?.valueOf();
 const currentMapId = ref<number>(0);
 
+const apiBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+? 'https://localhost:3333'  // For local access
+: 'https://192.168.1.177:3333'  // For external devices
+
 // Transmit setup
 const transmit = new Transmit({
-  baseUrl: 'http://127.0.0.1:3333',
+  baseUrl: apiBaseUrl,
 });
 
-const backendUrl = 'http://127.0.0.1:3333/';
+const backendUrl = apiBaseUrl + '/';
 
 let unsubscribeCurrentMapCharacters = ref<Function>();
 let activeSubscribeCharMovement : Subscription;
@@ -107,6 +113,7 @@ const currentPlayerTurn = ref<number>(0);
 
 // Sounds
 const soundPlayer = ref<HTMLAudioElement | null>(null);
+const effectPlayer = ref<HTMLAudioElement | null>(null);
 
 // Grid constants
 const cellsOfGrid = ref<CellOfGrid[]>([]);
@@ -332,7 +339,7 @@ async function changeWallsMode(){
     secondUncoverClick.value = undefined;
   }
 
-  if (addWallsMode.value === false && wallCells.value.length > 0){
+  if (addWallsMode.value === false){
     const body = {
       arrayOfObjects : wallCells.value,
       campaign_id : campaign_id,
@@ -630,19 +637,32 @@ async function subscribeToSounds() {
   unsubscribeSounds.value = activeSubscribeSounds.onMessage((message : any) => {
     const soundUrl = message.sound_url;
     const action = message.action;
+    const effect = message.effect;
 
     if (action === 'stop'){
       if (soundPlayer.value){
         soundPlayer.value.pause();
         soundPlayer.value.currentTime = 0;
       }
+      if(effectPlayer.value){
+        effectPlayer.value.pause();
+        effectPlayer.value.currentTime = 0;
+      }
     }
     
     if (action === 'play'){
-      if (soundPlayer.value){
-        soundPlayer.value.src = backendUrl + soundUrl;
-        soundPlayer.value.loop = true;
-        soundPlayer.value.play();
+      if (effect){
+        if (effectPlayer.value){
+          effectPlayer.value.src = backendUrl + soundUrl;
+          effectPlayer.value.loop = false;
+          effectPlayer.value.play();
+        }
+      }else{
+        if (soundPlayer.value){
+          soundPlayer.value.src = backendUrl + soundUrl;
+          soundPlayer.value.loop = true;
+          soundPlayer.value.play();
+        }
       }
     }
 
