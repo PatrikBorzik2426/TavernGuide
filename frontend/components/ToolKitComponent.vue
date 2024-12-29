@@ -35,7 +35,7 @@
 
     <div class="relative">
         <img @click="showSoundsBar()" src="@/assets/imgs/radio.svg" class=" bg-primary text-white w-fit p-2 rounded-full cursor-pointer">
-        <div v-if="showSounds" class=" w-fit h-fit bg-primary absolute top-[0%] right-[110%] z-[100] p-2 rounded-md overflow-hide">
+        <div v-if="showSounds" class=" w-fit h-fit bg-primary absolute top-[-550%] right-[110%] z-[100] p-2 rounded-md overflow-hide">
             <div class=" flex flex-col gap-2 justify-between w-72 mb-4">
                 <input @change="loadSound" name="sound" type="file" accept=".mp3,.wav,.ogg" class=" w-56 overflow-y-hidden text-white">
                 <div class=" flex gap-1">
@@ -50,7 +50,7 @@
                 </div>
             </div>
             
-            <ul class="flex flex-col gap-2 max-h-28 overflow-y-scroll overflow-x-hidden scrollbar-thin ">
+            <ul class="flex flex-col gap-2 max-h-64 overflow-y-scroll overflow-x-hidden scrollbar-thin ">
                 <li v-for="(sound,index) in sounds" :key="index" >
                     <div v-if="checkToDisplaySound(sound)" class="flex justify-between gap-1 items-center border-white border-2 p-1 rounded-md">
                         <p class="text-white max-w-[70%]">{{ sound.name }}</p>
@@ -82,6 +82,12 @@ const props = defineProps<{
   map_id: number;
   current_initiative: number;
 }>();
+
+const localIP = useRuntimeConfig().public.localIP;
+
+const apiBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+? 'https://localhost:3333'  // For local access
+: `https://taver-guide-backend-969305827073.europe-west1.run.app`  // For external devices
 
 const lastRoll = ref<number>(0);
 
@@ -187,7 +193,7 @@ async function uploadSound() {
         formData.append('file_name', newSoundFile.value.name);
         formData.append('is_effect', soundIsEffect.value ? '1' : '0');
         
-        const response = await axios.post('http://localhost:3333/sounds/upload', formData, {
+        const response = await axios.post(`${apiBaseUrl}/sounds/upload`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
                 'Authorization': 'Bearer ' + localStorage.getItem('bearer')

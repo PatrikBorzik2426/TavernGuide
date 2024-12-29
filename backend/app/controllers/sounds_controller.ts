@@ -62,6 +62,7 @@ export default class SoundsController {
     async list(ctx: HttpContext) {
         
         const sounds = await Sound.query()
+        .orderBy('name','asc')
         .select('name','url','effect')
 
         console.log("Sounds", sounds.length)

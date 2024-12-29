@@ -11,7 +11,8 @@
     "test": "node ace test",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prod": "cd build && npm ci --omit=\"dev\" && node bin/server.js "
   },
   "imports": {
     "#controllers/*": "./app/controllers/*.js",
