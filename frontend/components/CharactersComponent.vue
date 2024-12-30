@@ -67,7 +67,7 @@
                 <div class="flex flex-col gap-2 w-full ">
                     <div v-for="(character, index) in myCharacters" :key="index" class="flex flex-col gap-2">
                         <div class="flex w-full justify-center items-center gap-2 p-2 border-2 border-white rounded-xl">
-                            <img :src="'http://localhost:3333/storage/characters/' + character.avatarUrl" class="w-full max-w-[40%] aspect-square ">
+                            <img :src="'https://localhost:3333/storage/characters/' + character.avatarUrl" class="w-full max-w-[40%] aspect-square ">
                             <div class="flex flex-col pt-2 max-w-[50%] gap-2">
                                 <div class="flex flex-col justify-center items-center w-full">
                                     <label class="text-lg font-bold uppercase">Name:</label>
@@ -104,7 +104,7 @@
                 <div class="flex flex-col gap-2 w-full">
                     <div v-for="(character, index) in npcCharacters" :key="index" class="flex flex-col gap-2 h-fit">
                         <div class="flex w-full justify-center relative items-center gap-2 p-2 border-2 border-white rounded-xl">
-                            <img :src="'http://localhost:3333/storage/characters/' + character.avatarUrl" class="w-full max-w-[40%] aspect-square ">
+                            <img :src="'https://localhost:3333/storage/characters/' + character.avatarUrl" class="w-full max-w-[40%] aspect-square ">
                             <div class="flex flex-col pt-2 max-w-[50%] gap-2">
                                 <div class="flex flex-col justify-center items-center w-full">
                                     <label class="text-lg font-bold uppercase">Name:</label>
@@ -202,7 +202,7 @@ async function createNewCharacter(){
         }
 
         try{
-            const response = await axios.post('http://localhost:3333/characters/create', formData, {
+            const response = await axios.post('https://localhost:3333/characters/create', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     'Authorization': 'Bearer ' + localStorage.getItem('bearer')

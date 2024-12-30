@@ -85,9 +85,7 @@ const props = defineProps<{
 
 const localIP = useRuntimeConfig().public.localIP;
 
-const apiBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-? 'https://localhost:3333'  // For local access
-: `https://taver-guide-backend-969305827073.europe-west1.run.app`  // For external devices
+const apiBaseUrl = 'https://localhost:3333';
 
 const lastRoll = ref<number>(0);
 

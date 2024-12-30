@@ -85,9 +85,7 @@ const router = useRouter();
 const campaign_id = <number>router.currentRoute.value.query.campaign_id?.valueOf();
 const currentMapId = ref<number>(0);
 
-const apiBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-? 'https://localhost:3333'  // For local access
-: 'https://192.168.1.177:3333'  // For external devices
+const apiBaseUrl = 'https://localhost:3333';
 
 // Transmit setup
 const transmit = new Transmit({

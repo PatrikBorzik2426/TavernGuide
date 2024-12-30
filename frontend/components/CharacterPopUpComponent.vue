@@ -1,6 +1,6 @@
 <template>
     <div class="w-full rounded-full relative z-[200]">
-        <img @contextmenu.prevent="showCharacterMenu()" :src="'http://localhost:3333/storage/characters/' + props.character?.avatarUrl" class="w-full h-full">
+        <img @contextmenu.prevent="showCharacterMenu()" :src="'https://localhost:3333/storage/characters/' + props.character?.avatarUrl" class="w-full h-full">
         <div v-if="showMenu" 
         class=" w-64 h-fit p-4 bg-light_primary absolute rounded-xl border-2 border-white"
         :class="{ 'bottom-[120%]' : props.cell?.y >= 5, ' top-[120%] left-[120%]' : props.cell?.y < 5 }"

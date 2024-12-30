@@ -10,8 +10,8 @@ import fs from 'fs'
 const APP_ROOT = new URL('../', import.meta.url)
 
 const certOptions = {
-  key: fs.readFileSync('G:/Projekty/Tavern_Guide/TavernGuide/backend/cert.key'),
-  cert: fs.readFileSync('G:/Projekty/Tavern_Guide/TavernGuide/backend/cert.crt')
+  key: fs.readFileSync('../cert.key'),
+  cert: fs.readFileSync('../cert.crt')
 }
 /**
  * The importer is used to import files in the context of the
@@ -36,6 +36,7 @@ new Ignitor(APP_ROOT, { importer: IMPORTER })
   .start((handle) => {
     return createServer(certOptions, handle)
   })
+  // .start()
   .catch((error) => {
     process.exitCode = 1
     prettyPrintError(error)

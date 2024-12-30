@@ -1,4 +1,7 @@
+version: '3.8'
+
 services:
+  # PostgreSQL Database Service
   db:
     image: postgres:13
     container_name: postgres-db
@@ -11,7 +14,37 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
     networks:
-      - tavern_network
+      tavern_network:
+        ipv4_address: 192.168.1.10
+
+  # Nuxt.js Application Service
+  nuxt:
+    image: patrikborzik/nuxt-app:latest
+    container_name: nuxt-app
+    ports:
+      - "3000:3000"
+    networks:
+      tavern_network:
+        ipv4_address: 192.168.1.11
+    depends_on:
+      - db
+    environment:
+      - API_URL=https://localhost:3333  # AdonisJS service
+      - NITRO_SSL_KEY=-----BEGIN PRIVATE KEY-----MIIEowIBAAKCAQEAroGjAyQRfpWQ3t7LOBpz4yostgzLkB+5vxBohhazefo5fQ+mc43uAo0OZbXx5egfxiSM8DBdZFoqT2+y+GzEehmUdJE1+EsEjd7JWOrSlONuz+l6zv3c2dqxhLP7OdI/01PrN/RjNeA5rYjRpyBg5alItb9/ZhUUwTc2u5aFi3avsm8lYM9FAkz7uAo2Tv6m78kIgUZHWyxUP3FyzAbU+OECwUHtRSq1k8ISKXK/dez5AwNF5NaUxj+ylA6GV5pmvMcnNzMoSi4p33FwCSHzettYWJ2e9BD0S+ilPpYJj25udFirKXvQhuR/LDnMVfwDUHuoRdYWvkGESEhFmhnGowIDAQABAoIBABscnPzx753hEt7tcllHEtYqSUQHfODpbOxYWkTq5ft/essJUW0GkgHndGMs/2YeyED6kMMIYJokwAoTapTaITRvIPdzUBVBYnXANTwRT6I+K4s11RSvsE5QgeACLnfvSGdG1HafC4LlUVC6vwfeKe/Eez1xgROVFuJl96TxX9Io3rn8bo4l9mpm/efpBpco4Xrc4iFg5tB3OGpustFZG7UU9y5tgmNrMjIglq3hvJrMrAKvb3+toqPD2hTDI3qVl1rGW91t6pcDGMRWmbKOeZrjo0hM7hr0lC89Kp0arjml8x8LyR9KLc21NKou3jSCAKzj1e2aqbbNGua/PXTqK/ECgYEA1AOXbTHA8CTvFm0kkXnDKL/VlIyKW2BwWK36bcPddB/+aijJg/g64H7fgHv125gDsfzdZjnXRYzotdwUuf+cUghG3JRQOekGd4WVfGIXO8FUtcBJ0gaeOmoci9R4wE5ptaaZRdzWk1aSTuX/tLzm6fspV/IM1+2hSde59Rb5bE0CgYEA0rX0N6QoA0snR1NFbIJgVepl4FAtG6pT+LXxlSWhYbKAO3u9iE2M+2pmWGQ2YOlk9S0u0dymcr151qM6Tr09PXoTz6UavzBi/PAGiseSYc3PStl9ulM1GToDXbHJusnwidAJtmG7fNooZHw+m6leleqnk4Waf2TlLR4vkqICtq8CgYA5LdrKFVAOtDdTGg5xuaAbvlkQ3jJ2YHUMRaezsM5qAjLwWJ24nNrsLuuCUGxHVCEzAJqJdnILjOw6F+fzHe//48GQveNBKwqWc42UZTQU5pg9CGYgYa6M3I9kWuJSIxO5bPwLbnrkc8Wzx64GBahVVGqbEGnMVodYTfkWE6MjRQKBgAFSSMzMh7+1ifKFkCrlCmufg7ILbqz8vXgS1AgGa2OsdedpmD+xlM/C1A972Wd0L0DmXqPMSXLww0HYVjZGM4seJ9+mfmtyhzxk2PWn2MAqRUGH6aTwfqXA2mKNCeHVAGAs4NK2/DEFQTmYGeBqCIDSLuja7qQb4uAMj2nRAElbAoGBAMYB6Ymmzj1Ctw6/XrNE4wKh8wBcjHaDfItS2tZJT1ck6YkZUNsxW9axlJp0wYrU/0fyj2NpDxVR9ugRyblVpVYis4rstXY6yCBtEwzbAbHtslbbaatwoPE25nJLU8SA4yDWMwpmq3cSx3E7rDNRWcVWcGMO60loYo/bO06eteG2-----END PRIVATE KEY-----
+      - NITRO_SSL_CERT=-----BEGIN CERTIFICATE-----MIIDTTCCAjWgAwIBAgIGMTA3NTMwMA0GCSqGSIb3DQEBCwUAMF4xEDAOBgNVBAMTB1Rlc3QgQ0ExCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpDYWxpZm9ybmlhMRYwFAYDVQQHEw1TYW4gRnJhbmNpc2NvMRAwDgYDVQQKEwdUZXN0IENBMB4XDTI0MTIyNTIzNTc1OFoXDTI1MTIyNTIzNTc1OFowFDESMBAGA1UEAxMJbG9jYWxob3N0MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAroGjAyQRfpWQ3t7LOBpz4yostgzLkB+5vxBohhazefo5fQ+mc43uAo0OZbXx5egfxiSM8DBdZFoqT2+y+GzEehmUdJE1+EsEjd7JWOrSlONuz+l6zv3c2dqxhLP7OdI/01PrN/RjNeA5rYjRpyBg5alItb9/ZhUUwTc2u5aFi3avsm8lYM9FAkz7uAo2Tv6m78kIgUZHWyxUP3FyzAbU+OECwUHtRSq1k8ISKXK/dez5AwNF5NaUxj+ylA6GV5pmvMcnNzMoSi4p33FwCSHzettYWJ2e9BD0S+ilPpYJj25udFirKXvQhuR/LDnMVfwDUHuoRdYWvkGESEhFmhnGowIDAQABo1swWTAMBgNVHRMBAf8EAjAAMA4GA1UdDwEB/wQEAwIFoDAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUHAwIwGgYDVR0RBBMwEYIJbG9jYWxob3N0hwR/AAABMA0GCSqGSIb3DQEBCwUAA4IBAQCNNYFn7kY3+Y+NpR0tid7wJmshxizYAPqLxNyXnce9VUIfSmtkZWpvEI/gX+eKQmKro6c3Zvgj2nHQOrPVNl6zVD3T1FubLfMFkJPID4bM7Q9ssR+F1imFGcon78uHBtuAVjMdIJ4tCutjtaAKllZLu64jlWfSNtAk9x3oJHV2E4bCD02amDFnzQXWnKH/vNz7DtdOpF/TkUoa9UlT81Cdw/zKzTXKRzhZ3/nrhnnt8nuCD+clvDcUP15wao/Lr9QwkEk2tviJrJErDiFQIVUz2gsN5Nyqr8DRTM4RvhmGv9ExPcXHbx16X0nK3HjVZJyq31KO9/08U/WHzj4fSHlG-----END CERTIFICATE----------BEGIN CERTIFICATE-----MIIDXjCCAkagAwIBAgIFNjY1NjUwDQYJKoZIhvcNAQELBQAwXjEQMA4GA1UEAxMHVGVzdCBDQTELMAkGA1UEBhMCVVMxEzARBgNVBAgTCkNhbGlmb3JuaWExFjAUBgNVBAcTDVNhbiBGcmFuY2lzY28xEDAOBgNVBAoTB1Rlc3QgQ0EwHhcNMjQxMjI1MjM1NzA5WhcNMjUxMjI1MjM1NzA5WjBeMRAwDgYDVQQDEwdUZXN0IENBMQswCQYDVQQGEwJVUzETMBEGA1UECBMKQ2FsaWZvcm5pYTEWMBQGA1UEBxMNU2FuIEZyYW5jaXNjbzEQMA4GA1UEChMHVGVzdCBDQTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBANkGwGlsLjo1TW4EuNubTWxhQXNzKkShQ6oZ9DdmzoKDfPx8Z00ulYl9C6vwaLrE/7Fxzi0y6EbdkWn+tsOGZrJOzvlCpgT+KWLOHv3i2ZURJgRtdazpGyVh2BFyOcNaHuPHh8awM7tt2Y2ynSTSE35awCeFwb2H/INVLK4e8aDWZY1sfX0lF2Cnp7obWfhnlHo/d4rvAwPoHwDhaOlPVWiiMumJfkOSoFv7sSqc5HfVWOPzfi/S2/Una4a6OBt+Ftf2Cvv9UxMnGcjh3/TZ5+VS0uF7Ve8CnVIK7kNZS1VQCZEv5yngWqaeTepWEwFgJ/p5qioXJ4vn/6wXeU8Poc0CAwEAAaMjMCEwDwYDVR0TAQH/BAUwAwEB/zAOBgNVHQ8BAf8EBAMCAgQwDQYJKoZIhvcNAQELBQADggEBABVVKptYnw/HOhw02T6a7Gt3IY6VmrQ2ktXP/UZOH6TeEn0GtB5xOLO9ne6zQJOJ4S/5Y27iW2dO8XbcarR9QRYm/8MEfvK2U48Qgrw7pShqeSI8Sgrzot+7v+vDQ2RP1D+c1rIbO36ysgBnztdb/i6jqxrAeTlQzEbzNy7XXvLzWDwzDsAoHx3+k4WDhl8F37BO52vtrCrRIE4bpzU8GzUVPgwfyORPuBDX4zkh5TE+mkqxYDs5qan8J+Ak3xGiQBhkwmaNFvmk+ASZ/oRPzGsi9L84las/B0bHGO6UqgSfTobNhdoL6/KFWi3YIH4/2iCPNe0+VGjHzDM4j1pR/n4=-----END CERTIFICATE-----
+
+
+  # AdonisJS Application Service
+  adonis:
+    image: patrikborzik/adonis-app:latest
+    container_name: adonis-app
+    ports:
+      - "3333:3333"
+    networks:
+      tavern_network:
+        ipv4_address: 192.168.1.12
+    depends_on:
+      - db
 
 volumes:
   pg_data:
@@ -19,3 +52,6 @@ volumes:
 networks:
   tavern_network:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.1.0/24

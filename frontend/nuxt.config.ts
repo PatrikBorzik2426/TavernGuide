@@ -8,7 +8,7 @@ export default defineNuxtConfig({
   
   // devServer configuration
   devServer: {
-    host: '127.0.0.1',
+    host: '0.0.0.0',
     https: {
       key: path.resolve(__dirname, './cert.key'),  // Resolve path to the key
       cert: path.resolve(__dirname, './cert.crt')  // Resolve path to the certificate

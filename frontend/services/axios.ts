@@ -8,11 +8,9 @@ export async function callAxios( body: Dictionary<string|number|boolean>|{}, url
     let callResponse = null;
     console.log("Before axios call");
 
-    const apiBaseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'https://localhost:3333/'  // For local access
-    : 'https://192.168.1.177:3333/'  // For external devices
+    const apiBaseUrl = 'https://localhost:3333/';
 
-    console.log("Used URL: " + apiBaseUrl);
+    console.log("Used URL: " + apiBaseUrl+url);
 
     //127.0.0.1
     await axios.post(apiBaseUrl+url,body,{

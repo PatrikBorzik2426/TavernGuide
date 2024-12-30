@@ -8,12 +8,11 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "prod": "node .output/server/index.mjs"
+    "prod": "NITRO_SSL_CERT=$(cat cert.crt) && NITRO_SSL_KEY=$(cat cert.key) && node .output/server/index.mjs"
   },
   "dependencies": {
     "@adonisjs/transmit-client": "^1.0.0",
     "@nuxtjs/tailwindcss": "^6.12.2",
-    "axios": "^1.7.9",
     "dotenv": "^16.4.7",
     "nuxt": "^3.14.1592",
     "vue": "latest",
