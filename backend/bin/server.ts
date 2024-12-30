@@ -9,10 +9,17 @@ import fs from 'fs'
  */
 const APP_ROOT = new URL('../', import.meta.url)
 
+//! ZMENIŤ PRI DEPLOYMENTE
 const certOptions = {
   key: fs.readFileSync('../cert.key'),
   cert: fs.readFileSync('../cert.crt')
 }
+
+// const certOptions = {
+//   key: fs.readFileSync('G:\\Projekty\\Tavern_Guide\\TavernGuide\\backend\\cert.key'),
+//   cert: fs.readFileSync('G:\\Projekty\\Tavern_Guide\\TavernGuide\\backend\\cert.crt')
+// }
+
 /**
  * The importer is used to import files in the context of the
  * application.

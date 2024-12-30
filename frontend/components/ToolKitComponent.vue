@@ -33,7 +33,8 @@
         </div>
     </div>
 
-    <div class="relative">
+    <!--!! MAYBE WITH BETTER STORAGE MAKING IT PRESET SOUNDS! -->
+    <!-- <div class="relative">
         <img @click="showSoundsBar()" src="@/assets/imgs/radio.svg" class=" bg-primary text-white w-fit p-2 rounded-full cursor-pointer">
         <div v-if="showSounds" class=" w-fit h-fit bg-primary absolute top-[-550%] right-[110%] z-[100] p-2 rounded-md overflow-hide">
             <div class=" flex flex-col gap-2 justify-between w-72 mb-4">
@@ -62,7 +63,7 @@
                 </li>
             </ul>
         </div>
-    </div>
+    </div> -->
 
     <div class="Notes">
         <img @click="" src="@/assets/imgs/notes.svg" class=" bg-primary text-white w-fit p-2 rounded-full cursor-pointer">
@@ -85,7 +86,7 @@ const props = defineProps<{
 
 const localIP = useRuntimeConfig().public.localIP;
 
-const apiBaseUrl = 'https://localhost:3333';
+const apiBaseUrl = 'https://88.198.78.177:3333';
 
 const lastRoll = ref<number>(0);
 
