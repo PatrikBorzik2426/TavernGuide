@@ -8,7 +8,8 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "prod": "NITRO_SSL_CERT=$(cat cert.crt) && NITRO_SSL_KEY=$(cat cert.key) && node .output/server/index.mjs"
+    "prod": "node .output/server/index.mjs",
+    "docker": "docker build -t patrikborzik/nuxt-app:latest . &&   docker push patrikborzik/nuxt-app:latest"
   },
   "dependencies": {
     "@adonisjs/transmit-client": "^1.0.0",

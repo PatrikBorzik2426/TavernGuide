@@ -8,7 +8,7 @@ export async function callAxios( body: Dictionary<string|number|boolean>|{}, url
     let callResponse = null;
     console.log("Before axios call");
 
-    const apiBaseUrl = 'https://88.198.78.177:3333/';
+    const apiBaseUrl = 'https://patrikborzik.sk/dnd-backend/';
 
     console.log("Used URL: " + apiBaseUrl+url);
 

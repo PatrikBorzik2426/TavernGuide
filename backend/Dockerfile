@@ -28,12 +28,6 @@ COPY . .
 # Build the app
 RUN npm run build
 
-COPY ./cert.crt ./build/cert.crt
-COPY ./cert.key ./build/cert.key
-
-COPY ./ca.crt ./build/ca.crt
-COPY ./ca.key ./build/ca.key
-
 # Expose the application on port 3000
 EXPOSE 3333
 

@@ -16,7 +16,7 @@
 
             <hr class=" border-none h-1 my-8 rounded-full bg-white">
 
-            <form v-if="showCharacters && showTab === 0" @submit.prevent="createNewCharacter" class=" flex mt-4 flex-col gap-2 ">
+            <form v-if="showCharacters && showTab === 0" @submit.prevent="createNewCharacter()" class=" flex mt-4 flex-col gap-2 ">
                 <div class="flex flex-col">
                     <label for="name">Character Name:</label>
                     <input v-model="charInputName" name="name" type="text" class=" mt-2 px-2 py-1 h-8 bg-transparent border-[3px] border-white rounded-lg">
@@ -67,7 +67,7 @@
                 <div class="flex flex-col gap-2 w-full ">
                     <div v-for="(character, index) in myCharacters" :key="index" class="flex flex-col gap-2">
                         <div class="flex w-full justify-center items-center gap-2 p-2 border-2 border-white rounded-xl">
-                            <img :src="'https://88.198.78.177:3333/storage/characters/' + character.avatarUrl" class="w-full max-w-[40%] aspect-square ">
+                            <img :src="'https://patrikborzik.sk/dnd-backend//storage/characters/' + character.avatarUrl" class="w-full max-w-[40%] aspect-square ">
                             <div class="flex flex-col pt-2 max-w-[50%] gap-2">
                                 <div class="flex flex-col justify-center items-center w-full">
                                     <label class="text-lg font-bold uppercase">Name:</label>
@@ -104,7 +104,7 @@
                 <div class="flex flex-col gap-2 w-full">
                     <div v-for="(character, index) in npcCharacters" :key="index" class="flex flex-col gap-2 h-fit">
                         <div class="flex w-full justify-center relative items-center gap-2 p-2 border-2 border-white rounded-xl">
-                            <img :src="'https://88.198.78.177:3333/storage/characters/' + character.avatarUrl" class="w-full max-w-[40%] aspect-square ">
+                            <img :src="'https://patrikborzik.sk/dnd-backend//storage/characters/' + character.avatarUrl" class="w-full max-w-[40%] aspect-square ">
                             <div class="flex flex-col pt-2 max-w-[50%] gap-2">
                                 <div class="flex flex-col justify-center items-center w-full">
                                     <label class="text-lg font-bold uppercase">Name:</label>
@@ -201,8 +201,10 @@ async function createNewCharacter(){
             formData.append('numNPC', numberOfNPCs.value.toString());
         }
 
+        console.log("Form data: ", formData, "Accessing: https://patrikborzik.sk/dnd-backend//characters/create");
+
         try{
-            const response = await axios.post('https://88.198.78.177:3333/characters/create', formData, {
+            const response = await axios.post('https://patrikborzik.sk/dnd-backend//characters/create', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     'Authorization': 'Bearer ' + localStorage.getItem('bearer')

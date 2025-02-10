@@ -61,7 +61,7 @@ import type { CombatInit } from '~/models/CombatInit';
   const campaign_id = <number>router.currentRoute.value.query.campaign_id?.valueOf();
   const currentMapId = ref<number>(0);
   
-  const apiBaseUrl = 'https://88.198.78.177:3333';
+  const apiBaseUrl = 'https://patrikborzik.sk/dnd-backend';
 
   // Transmit setup
   const transmit = new Transmit({

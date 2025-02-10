@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import type { HttpContext } from '@adonisjs/core/http'
 import User from '../models/user.js'
 
@@ -26,6 +27,12 @@ export default class AuthController {
 
         try{
             const user = await User.findBy('login', username)
+
+            const validUser = await user?.verifyPassword(password)
+
+            if(!validUser){
+                return ctx.response.badRequest({message: "Invalid credentials", status: 401})
+            }
 
             if(user){
                 const token = await User.accessTokens.create(user)

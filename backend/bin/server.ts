@@ -1,19 +1,11 @@
 import 'reflect-metadata'
 import { Ignitor, prettyPrintError } from '@adonisjs/core'
-import { createServer } from 'https'
-import fs from 'fs'
 
 /**
  * URL to the application root. AdonisJS needs it to resolve
  * paths to file and directories for scaffolding commands
  */
 const APP_ROOT = new URL('../', import.meta.url)
-
-//! ZMENIŤ PRI DEPLOYMENTE
-const certOptions = {
-  key: fs.readFileSync('../cert.key'),
-  cert: fs.readFileSync('../cert.crt')
-}
 
 // const certOptions = {
 //   key: fs.readFileSync('G:\\Projekty\\Tavern_Guide\\TavernGuide\\backend\\cert.key'),
@@ -40,10 +32,10 @@ new Ignitor(APP_ROOT, { importer: IMPORTER })
     app.listenIf(app.managedByPm2, 'SIGINT', () => app.terminate())
   })
   .httpServer()
-  .start((handle) => {
-    return createServer(certOptions, handle)
-  })
-  // .start()
+  // .start((handle) => {
+  //   return createServer(certOptions, handle)
+  // })
+  .start()
   .catch((error) => {
     process.exitCode = 1
     prettyPrintError(error)

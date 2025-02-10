@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 /*
 |--------------------------------------------------------------------------
 | Routes file
@@ -13,7 +14,13 @@ import transmit from '@adonisjs/transmit/services/main'
 import { normalize, sep } from 'path'
 import app from '@adonisjs/core/services/app'
 
-transmit.registerRoutes()
+const EventStreamController = () => import('@adonisjs/transmit/controllers/event_stream_controller')
+const SubscribeController = () => import('@adonisjs/transmit/controllers/subscribe_controller')
+const UnsubscribeController = () => import('@adonisjs/transmit/controllers/unsubscribe_controller')
+
+router.get('/dnd-backend/__transmit/events', [EventStreamController])
+router.post('/dnd-backend/__transmit/subscribe', [SubscribeController])
+router.post('/dnd-backend/__transmit/unsubscribe', [UnsubscribeController])
 
 const AuthController = () => import('#controllers/auth_controller')
 const CampaignsController = () => import('#controllers/campaigns_controller')
@@ -59,12 +66,16 @@ router.get('/storage/sounds/*', ({ request, response }) => {
   return response.download(absolutePath)
 })
 
+router.get('/dnd-backend/', async ({ response }) => {
+  return response.send('Hello world')
+})
+
 router.group(() => {
   router.post('/register',[AuthController,'register']),
   router.post('/login',[AuthController,'login']),
   router.post('/simpleAuth',[AuthController,'simpleAuthorization']).use(middleware.auth()),
   router.post('/logout',[AuthController,'logout']).use(middleware.auth())
-}).prefix('auth')
+}).prefix('/dnd-backend/auth')
 
 router.group(()=>{
   router.post('/create',[CampaignsController,'create']).use(middleware.auth()),
@@ -75,7 +86,7 @@ router.group(()=>{
   router.post('/getUsers',[CampaignsController,'assignedUsers']).use(middleware.auth()),
   router.post('/getDm',[CampaignsController,'getDmOfCampaign']).use(middleware.auth()),
   router.post('/join',[CampaignsController,'joinCampaign']).use(middleware.auth())
-}).prefix('campaigns')
+}).prefix('/dnd-backend/campaigns')
 
 router.group(()=>{
   router.post('/create',[MapsController,'create']).use(middleware.auth()),
@@ -86,7 +97,7 @@ router.group(()=>{
   router.post('/getActive',[MapsController,'getActiveMap']).use(middleware.auth()),
   router.post('/setActive',[MapsController,'setActiveMap']).use(middleware.auth()),
   router.post('/reveal',[MapsController,'revealMap']).use(middleware.auth())
-}).prefix('maps')
+}).prefix('/dnd-backend/maps')
 
 router.group(()=>{
   router.post('/create',[CharactersController,'createCharacter']).use(middleware.auth()),
@@ -94,14 +105,14 @@ router.group(()=>{
   router.post('/update',[CharactersController,'updateCharacter']).use(middleware.auth()),
   router.post('/delete',[CharactersController,'deleteCharacter']).use(middleware.auth())
   router.post('/assignUser',[CharactersController,'assignUserToCharacter']).use(middleware.auth())
-}).prefix('characters')
+}).prefix('/dnd-backend/characters')
 
 router.group(()=>{
   router.post('/initiate',[CombatsController,'initiate']).use(middleware.auth()),
   router.post('/start',[CombatsController,'start']).use(middleware.auth()),
   router.post('/next',[CombatsController,'next']).use(middleware.auth()),
   router.post('/end',[CombatsController,'end']).use(middleware.auth())
-}).prefix('combats')
+}).prefix('/dnd-backend/combats')
 
 router.group(()=>{
   router.post('/upload',[SoundsController,'upload']).use(middleware.auth()),
@@ -109,10 +120,10 @@ router.group(()=>{
   router.post('/play',[SoundsController,'playSound']).use(middleware.auth()),
   router.post('/stop',[SoundsController,'stopSound']).use(middleware.auth()),
   router.post('/delete',[SoundsController,'delete']).use(middleware.auth())
-}).prefix('sounds')
+}).prefix('/dnd-backend/sounds')
 
 router.group(()=>{
   router.post('/createWalls',[ObjectsController,'createNumerousWalls']).use(middleware.auth()),
   router.post('/listWalls',[ObjectsController,'listWalls']).use(middleware.auth()),
   router.post('/fow',[ObjectsController,'informAboutFow']).use(middleware.auth())
-}).prefix('objects')
+}).prefix('/dnd-backend/objects')

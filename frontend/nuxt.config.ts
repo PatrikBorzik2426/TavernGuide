@@ -5,16 +5,13 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   ssr: false,
   modules: ['@nuxtjs/tailwindcss'],
-  
-  // devServer configuration
   devServer: {
-    host: '0.0.0.0',
-    https: {
-      key: path.resolve(__dirname, './cert.key'),  // Resolve path to the key
-      cert: path.resolve(__dirname, './cert.crt')  // Resolve path to the certificate
-    }
+    host: '0.0.0.0', // Default: localhost
+    port: 3000,      // Default: 3000
   },
   app: {
+    baseURL: '/dnd/',
+    cdnURL: 'https://patrikborzik.sk/dnd/',
     head: {
       link: [
         {
@@ -25,3 +22,4 @@ export default defineNuxtConfig({
     },
   },
 })
+

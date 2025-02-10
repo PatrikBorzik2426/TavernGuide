@@ -320,6 +320,17 @@ export default class CharactersController {
             return ctx.response.badRequest({ message: 'Character not found', status: 404 });
         }
 
+        const avatarPath = app.makePath('storage/characters');
+
+        const avatarUrl = `${avatarPath}/${character.avatarUrl}`;
+
+        try{
+            await fs.unlink(avatarUrl);
+        }
+        catch(e){
+            console.log("No file to delete");
+        }
+
         await character.delete();
 
         return ctx.response.ok({ message: 'Character deleted', status: 200 });
@@ -399,6 +410,18 @@ export default class CharactersController {
             const maps = await character.related('maps').pivotQuery();
 
             if (maps.length === 0) {
+                //Delte character located on avatar_url of character
+                const avatarPath = app.makePath('storage/characters');
+
+                const avatarUrl = `${avatarPath}/${character.avatarUrl}`;
+
+                try{
+                    await fs.unlink(avatarUrl);
+                }
+                catch(e){
+                    console.log("No file to delete");
+                }
+
                 await character.delete();
             }
         }     

@@ -51,4 +51,8 @@ export default class User extends compose(BaseModel, AuthFinder) {
     pivotTimestamps: true
   })
   declare characters: ManyToMany<typeof Character>
+
+  async verifyPassword(plainText: string): Promise<boolean> {
+    return await hash.verify(this.password, plainText)
+  }
 }

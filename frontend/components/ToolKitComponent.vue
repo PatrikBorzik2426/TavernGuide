@@ -86,7 +86,7 @@ const props = defineProps<{
 
 const localIP = useRuntimeConfig().public.localIP;
 
-const apiBaseUrl = 'https://88.198.78.177:3333';
+const apiBaseUrl = 'https://patrikborzik.sk/dnd-backend/';
 
 const lastRoll = ref<number>(0);
 
